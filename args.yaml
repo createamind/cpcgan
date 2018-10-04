@@ -1,0 +1,9 @@
+---
+cpc:
+    learning_rate: 0.001
+    weight_decay: 0.0001
+    code_size: 128
+
+batch_size: 128
+
+model_name: supervised
