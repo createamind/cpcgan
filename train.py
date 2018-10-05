@@ -51,7 +51,7 @@ def train_model(epochs, batch_size=32, learning_rate=1e-3, weight_decay=1e-4, co
         # Training
         cpc.log_tensorboard=True
         for (history, future), label in train_data:
-            run_batch(cpc, history, future, label, 'Training', i % 1e3, losses, accuracies)
+            run_batch(cpc, history, future, label, 'Training', i, losses, accuracies)
             i += 1
             if i % 1e3 == 0:
                 break
@@ -63,7 +63,7 @@ def train_model(epochs, batch_size=32, learning_rate=1e-3, weight_decay=1e-4, co
         cpc.log_tensorboard = False
         for j, ((history, future), label) in enumerate(validation_data):
             run_batch(cpc, history, future, label, 'Testing', j, losses, accuracies)
-            if j > 1e2:
+            if j > 3e2:
                 break
         print('\nValidation Epoch Is Done.\n Start Saving...')
         cpc.save()
@@ -118,8 +118,8 @@ def run_batch(cpc, history, future, label, dataset, i, losses, accuracies=None):
         prob = 1 / (1 + np.exp(-logits))
         accuracy = np.sum((prob > .5) == label) / np.size(label)
         accuracies.append(accuracy)
-        print('\r{} step {}:\tLoss {: .4f}\tAccuracy {:.2f}\t \
-            Average Loss: {:.4f}\t Average Accuracy: {:.2f}'.format(dataset, i, loss, accuracy, np.mean(losses), np.mean(accuracies)), end="")
+        print('\r{} step {: 4d}:\tLoss {: .4f}\tAccuracy {:.2f}\t \
+            Average Loss: {:.4f}\t Average Accuracy: {:.2f}'.format(dataset, (i % 1e3), loss, accuracy, np.mean(losses), np.mean(accuracies)), end="")
     else:                       # unsupervised learning, in which we don't have logits
         if dataset == 'Training':
             loss, _, summary = cpc.sess.run([cpc.loss, cpc.opt_op, cpc.merged_op], feed_dict=feed_dict)
@@ -128,7 +128,7 @@ def run_batch(cpc, history, future, label, dataset, i, losses, accuracies=None):
             loss = cpc.sess.run(cpc.loss, feed_dict=feed_dict)
 
         losses.append(loss)
-        print('\r{} step {}:\tLoss {: .4f}\tAverage Loss {:.4f}'.format(dataset, i, loss, np.mean(losses)), end="")
+        print('\r{} step {: 4d}:\tLoss {: .4f}\tAverage Loss {:.4f}'.format(dataset, (i % 1e3), loss, np.mean(losses)), end="")
 
 if __name__ == "__main__":
 
