@@ -1,0 +1,187 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+CPC	../cpc.py	/^class CPC(Model):$/;"	kind:class	line:7
+CPC	../train.py	/^from cpc import CPC$/;"	kind:namespace	line:8
+CPCLayer	../train_model.py	/^class CPCLayer(keras.layers.Layer):$/;"	kind:class	line:66
+Image	../data_utils.py	/^from PIL import Image$/;"	kind:namespace	line:6
+K	../train_model.py	/^from keras import backend as K$/;"	kind:namespace	line:11
+MnistGenerator	../benchmark_model.py	/^from data_utils import MnistGenerator$/;"	kind:namespace	line:3
+MnistGenerator	../data_utils.py	/^class MnistGenerator(object):$/;"	kind:class	line:191
+MnistHandler	../data_utils.py	/^class MnistHandler(object):$/;"	kind:class	line:12
+Model	../cpc.py	/^from module import Model$/;"	kind:namespace	line:5
+Model	../module.py	/^class Model(Module):$/;"	kind:class	line:155
+Module	../module.py	/^class Module(object):$/;"	kind:class	line:14
+SortedNumberGenerator	../data_utils.py	/^class SortedNumberGenerator(object):$/;"	kind:class	line:229
+SortedNumberGenerator	../train.py	/^from data_utils import SortedNumberGenerator$/;"	kind:namespace	line:9
+SortedNumberGenerator	../train_model.py	/^from data_utils import SortedNumberGenerator$/;"	kind:namespace	line:8
+__init__	../cpc.py	/^    def __init__(self, name, args, sess, reuse=False, build_graph=True, log_tensorboard=True):$/;"	kind:member	line:9
+__init__	../data_utils.py	/^    def __init__(self):$/;"	kind:member	line:16
+__init__	../data_utils.py	/^    def __init__(self, batch_size, subset, image_size=28, color=False, rescale=True):$/;"	kind:member	line:195
+__init__	../data_utils.py	/^    def __init__(self, batch_size, subset, terms, positive_samples=1, predict_terms=1, image_size=28, color=False, rescale=True):$/;"	kind:member	line:233
+__init__	../data_utils.py	/^    def __init__(self, batch_size, subset, terms, positive_samples=1, predict_terms=1, image_size=28, color=False, rescale=True):$/;"	kind:member	line:305
+__init__	../module.py	/^    def __init__(self, name, args, reuse=False, build_graph=True, log_tensorboard=False):$/;"	kind:member	line:16
+__init__	../module.py	/^    def __init__(self, name, args, sess=None, reuse=False, build_graph=True, log_tensorboard=False, save=True):$/;"	kind:member	line:157
+__init__	../train_model.py	/^    def __init__(self, **kwargs):$/;"	kind:member	line:70
+__init__.py	../__init__.py	1;"	kind:file	line:1
+__init__.py	../utils/__init__.py	1;"	kind:file	line:1
+__iter__	../data_utils.py	/^    def __iter__(self):$/;"	kind:member	line:209
+__iter__	../data_utils.py	/^    def __iter__(self):$/;"	kind:member	line:250
+__iter__	../data_utils.py	/^    def __iter__(self):$/;"	kind:member	line:322
+__len__	../data_utils.py	/^    def __len__(self):$/;"	kind:member	line:215
+__len__	../data_utils.py	/^    def __len__(self):$/;"	kind:member	line:256
+__len__	../data_utils.py	/^    def __len__(self):$/;"	kind:member	line:328
+__next__	../data_utils.py	/^    def __next__(self):$/;"	kind:member	line:212
+__next__	../data_utils.py	/^    def __next__(self):$/;"	kind:member	line:253
+__next__	../data_utils.py	/^    def __next__(self):$/;"	kind:member	line:325
+_autoregressive	../cpc.py	/^    def _autoregressive(self, x):$/;"	kind:member	line:69
+_build_graph	../cpc.py	/^    def _build_graph(self):$/;"	kind:member	line:32
+_build_graph	../module.py	/^    def _build_graph(self):$/;"	kind:member	line:54
+_conv	../module.py	/^    def _conv(self, x, filters, kernel_size, strides=1, padding='same', kernel_initializer=tf_utils.xavier_initializer()): $/;"	kind:member	line:119
+_conv_bn_relu	../module.py	/^    def _conv_bn_relu(self, x, filters, kernel_size, strides=1, padding='same', kernel_initializer=tf_utils.kaiming_initializer()):$/;"	kind:member	line:125
+_conv_norm_activation	../module.py	/^    def _conv_norm_activation(self, x, filters, kernel_size, strides=1, padding='same', $/;"	kind:member	line:131
+_convtrans	../module.py	/^    def _convtrans(self, x, filters, kernel_size, strides=1, padding='same', kernel_initializer=tf_utils.xavier_initializer()): $/;"	kind:member	line:138
+_convtrans_bn_relu	../module.py	/^    def _convtrans_bn_relu(self, x, filters, kernel_size, strides=1, padding='same', kernel_initializer=tf_utils.kaiming_initializer()):$/;"	kind:member	line:142
+_convtrans_norm_activation	../module.py	/^    def _convtrans_norm_activation(self, x, filters, kernel_size, strides=1, padding='same', $/;"	kind:member	line:148
+_dense	../module.py	/^    def _dense(self, x, units, kernel_initializer=tf_utils.xavier_initializer()):$/;"	kind:member	line:96
+_dense_bn_relu	../module.py	/^    def _dense_bn_relu(self, x, units, kernel_initializer=tf_utils.kaiming_initializer()):$/;"	kind:member	line:100
+_dense_ln_relu	../module.py	/^    def _dense_ln_relu(self, x, units, kernel_initializer=tf_utils.kaiming_initializer()):$/;"	kind:member	line:106
+_dense_norm_activation	../module.py	/^    def _dense_norm_activation(self, x, units, kernel_initializer=tf_utils.xavier_initializer(),$/;"	kind:member	line:112
+_encode	../cpc.py	/^    def _encode(self, x, reuse=None):$/;"	kind:member	line:56
+_get_model_name	../module.py	/^    def _get_model_name(self):$/;"	kind:member	line:212
+_get_models	../module.py	/^    def _get_models(self):$/;"	kind:member	line:209
+_loss	../cpc.py	/^    def _loss(self, context, z_future):$/;"	kind:member	line:77
+_optimize	../module.py	/^    def _optimize(self, loss):$/;"	kind:member	line:62
+_setup_placeholder	../cpc.py	/^    def _setup_placeholder(self):$/;"	kind:member	line:48
+_setup_saver	../module.py	/^    def _setup_saver(self, save):$/;"	kind:member	line:203
+_setup_tensorboard_summary	../module.py	/^    def _setup_tensorboard_summary(self):$/;"	kind:member	line:57
+_training	../module.py	/^    def _training(self):$/;"	kind:member	line:45
+ag	../data_utils.py	/^    ag = SortedNumberGenerator(batch_size=8, subset='train', terms=4, positive_samples=4, predict_terms=4, image_size=64, color=True, rescale=False)$/;"	kind:variable	line:394
+basename	../benchmark_model.py	/^from os.path import join, basename, dirname, exists$/;"	kind:namespace	line:4
+basename	../train_model.py	/^from os.path import join, basename, dirname, exists$/;"	kind:namespace	line:9
+batch_size	../benchmark_model.py	/^        batch_size=64,$/;"	kind:variable	line:73
+batch_size	../train_model.py	/^        batch_size=32,$/;"	kind:variable	line:171
+benchmark_model	../benchmark_model.py	/^def benchmark_model(encoder_path, epochs, batch_size, output_dir, lr=1e-4, image_size=28, color=False):$/;"	kind:function	line:40
+benchmark_model.py	../benchmark_model.py	1;"	kind:file	line:1
+bn_activation	../utils/tf_utils.py	/^def bn_activation(x, training, activation=None):$/;"	kind:function	line:20
+bn_relu	../utils/tf_utils.py	/^def bn_relu(x, training): $/;"	kind:function	line:13
+build_graph	../module.py	/^    def build_graph(self):$/;"	kind:member	line:28
+build_model	../benchmark_model.py	/^def build_model(encoder_path, image_shape, learning_rate):$/;"	kind:function	line:8
+call	../train_model.py	/^    def call(self, inputs):$/;"	kind:member	line:73
+code_size	../train_model.py	/^        code_size=128,$/;"	kind:variable	line:173
+color	../benchmark_model.py	/^        color=True$/;"	kind:variable	line:77
+color	../train_model.py	/^        color=True$/;"	kind:variable	line:178
+compute_output_shape	../train_model.py	/^    def compute_output_shape(self, input_shape):$/;"	kind:member	line:86
+cpc.py	../cpc.py	1;"	kind:file	line:1
+data_augmention	../train.py	/^def data_augmention(x_sample, y_sample, label_sample):$/;"	kind:function	line:51
+data_utils.py	../data_utils.py	1;"	kind:file	line:1
+debug_tools.py	../utils/debug_tools.py	1;"	kind:file	line:1
+default_path	../utils/utils.py	/^def default_path(filename):$/;"	kind:function	line:6
+dirname	../benchmark_model.py	/^from os.path import join, basename, dirname, exists$/;"	kind:namespace	line:4
+dirname	../train_model.py	/^from os.path import join, basename, dirname, exists$/;"	kind:namespace	line:9
+download	../data_utils.py	/^        def download(filename, source='http:\/\/yann.lecun.com\/exdb\/mnist\/'):$/;"	kind:function	line:33
+encode	../cpc.py	/^    def encode(self, x):$/;"	kind:member	line:18
+encoder_path	../benchmark_model.py	/^        encoder_path='models\/64x64\/encoder.h5',$/;"	kind:variable	line:71
+epochs	../benchmark_model.py	/^        epochs=15,$/;"	kind:variable	line:72
+epochs	../train.py	/^        epochs=10$/;"	kind:variable	line:102
+epochs	../train_model.py	/^        epochs=10,$/;"	kind:variable	line:170
+exists	../benchmark_model.py	/^from os.path import join, basename, dirname, exists$/;"	kind:namespace	line:4
+exists	../train_model.py	/^from os.path import join, basename, dirname, exists$/;"	kind:namespace	line:9
+get_batch	../data_utils.py	/^    def get_batch(self, subset, batch_size, image_size=28, color=False, rescale=True):$/;"	kind:member	line:125
+get_batch_by_labels	../data_utils.py	/^    def get_batch_by_labels(self, subset, labels, image_size=28, color=False, rescale=True):$/;"	kind:member	line:150
+get_n_samples	../data_utils.py	/^    def get_n_samples(self, subset):$/;"	kind:member	line:179
+get_tensor	../utils/tf_utils.py	/^def get_tensor(sess, name=None, op_name=None):$/;"	kind:function	line:72
+global_variables	../module.py	/^    def global_variables(self):$/;"	kind:member	line:33
+gmtime	../utils/debug_tools.py	/^from time import strftime, gmtime, time$/;"	kind:namespace	line:1
+gzip	../data_utils.py	/^        import gzip$/;"	kind:namespace	line:39
+image_size	../benchmark_model.py	/^        image_size=64,$/;"	kind:variable	line:76
+image_size	../train_model.py	/^        image_size=64,$/;"	kind:variable	line:177
+join	../benchmark_model.py	/^from os.path import join, basename, dirname, exists$/;"	kind:namespace	line:4
+join	../train_model.py	/^from os.path import join, basename, dirname, exists$/;"	kind:namespace	line:9
+kaiming_initializer	../utils/tf_utils.py	/^def kaiming_initializer(uniform=False, seed=None, dtype=tf.float32):$/;"	kind:function	line:5
+keras	../benchmark_model.py	/^import keras$/;"	kind:namespace	line:5
+keras	../train_model.py	/^import keras$/;"	kind:namespace	line:10
+l2_regularizer	../module.py	/^    def l2_regularizer(self):$/;"	kind:member	line:170
+l2_regularizer	../module.py	/^    def l2_regularizer(self):$/;"	kind:member	line:50
+ln_activation	../utils/tf_utils.py	/^def ln_activation(x, activation=None):$/;"	kind:function	line:28
+ln_relu	../utils/tf_utils.py	/^def ln_relu(x):$/;"	kind:function	line:17
+load_args	../utils/utils.py	/^def load_args(filename='args.yaml'):$/;"	kind:function	line:10
+load_dataset	../data_utils.py	/^    def load_dataset(self):$/;"	kind:member	line:24
+load_mnist_images	../data_utils.py	/^        def load_mnist_images(filename):$/;"	kind:function	line:41
+load_mnist_labels	../data_utils.py	/^        def load_mnist_labels(filename):$/;"	kind:function	line:55
+logsumexp	../utils/tf_utils.py	/^def logsumexp(value, axis=None, keepdims=False):$/;"	kind:function	line:60
+lr	../benchmark_model.py	/^        lr=1e-3,$/;"	kind:variable	line:75
+lr	../train_model.py	/^        lr=1e-3,$/;"	kind:variable	line:174
+module.py	../module.py	1;"	kind:file	line:1
+ndimage	../data_utils.py	/^import scipy.ndimage$/;"	kind:namespace	line:5
+ndimage	../utils/utils.py	/^from scipy import ndimage$/;"	kind:namespace	line:4
+network_autoregressive	../train_model.py	/^def network_autoregressive(x):$/;"	kind:function	line:39
+network_cpc	../train_model.py	/^def network_cpc(image_shape, terms, predict_terms, code_size, learning_rate):$/;"	kind:function	line:90
+network_encoder	../train_model.py	/^def network_encoder(x, code_size):$/;"	kind:function	line:14
+network_prediction	../train_model.py	/^def network_prediction(context, code_size, predict_terms):$/;"	kind:function	line:50
+next	../data_utils.py	/^    def next(self):$/;"	kind:member	line:218
+next	../data_utils.py	/^    def next(self):$/;"	kind:member	line:259
+next	../data_utils.py	/^    def next(self):$/;"	kind:member	line:331
+norm_activation	../utils/tf_utils.py	/^def norm_activation(x, normalization=None, activation=None, training=False):$/;"	kind:function	line:36
+np	../cpc.py	/^import numpy as np$/;"	kind:namespace	line:1
+np	../data_utils.py	/^import numpy as np$/;"	kind:namespace	line:4
+np	../train.py	/^import numpy as np$/;"	kind:namespace	line:2
+numbSameNumberGenerator	../data_utils.py	/^class  numbSameNumberGenerator(object):$/;"	kind:class	line:301
+optimize	../cpc.py	/^    def optimize(self, feed_dict):$/;"	kind:member	line:22
+os	../data_utils.py	/^import os$/;"	kind:namespace	line:3
+os	../module.py	/^import os$/;"	kind:namespace	line:4
+os	../utils/utils.py	/^import os$/;"	kind:namespace	line:2
+output_dir	../benchmark_model.py	/^        output_dir='models\/64x64',$/;"	kind:variable	line:74
+output_dir	../train_model.py	/^        output_dir='models\/64x64',$/;"	kind:variable	line:172
+perturbable_variables	../module.py	/^    def perturbable_variables(self):$/;"	kind:member	line:41
+plot_sequences	../data_utils.py	/^def plot_sequences(x, y, labels=None, output_path=None):$/;"	kind:function	line:368
+plt	../data_utils.py	/^from matplotlib import pyplot as plt$/;"	kind:namespace	line:9
+predict_terms	../train_model.py	/^        predict_terms=4,$/;"	kind:variable	line:176
+process_batch	../data_utils.py	/^    def process_batch(self, batch, batch_size, image_size=28, color=False, rescale=True):$/;"	kind:member	line:78
+randint	../train.py	/^from random import randint$/;"	kind:namespace	line:1
+range_normalization	../utils/tf_utils.py	/^def range_normalization(images, normalizing=True):$/;"	kind:function	line:52
+restore	../module.py	/^    def restore(self, filename=None):$/;"	kind:member	line:174
+rotate_image	../utils/utils.py	/^def rotate_image(images, angle, cval=0):$/;"	kind:function	line:30
+run_batch	../train.py	/^def run_batch(cpc, history, future, label, dataset, i = None):$/;"	kind:function	line:81
+save	../module.py	/^    def save(self):$/;"	kind:member	line:195
+save_args	../utils/utils.py	/^def save_args(args, args_to_update=None, filename='args.yaml'):$/;"	kind:function	line:19
+scipy	../data_utils.py	/^import scipy$/;"	kind:namespace	line:7
+scipy	../data_utils.py	/^import scipy.ndimage$/;"	kind:namespace	line:5
+shift_image	../utils/utils.py	/^def shift_image(images, shift, cval=0):$/;"	kind:function	line:33
+standard_normalization	../utils/tf_utils.py	/^def standard_normalization(images):$/;"	kind:function	line:44
+stats	../train.py	/^from scipy import stats$/;"	kind:namespace	line:3
+strftime	../utils/debug_tools.py	/^from time import strftime, gmtime, time$/;"	kind:namespace	line:1
+sys	../data_utils.py	/^import sys$/;"	kind:namespace	line:8
+sys	../module.py	/^import sys$/;"	kind:namespace	line:5
+sys	../utils/utils.py	/^import sys$/;"	kind:namespace	line:3
+tc	../cpc.py	/^import tensorflow.contrib as tc$/;"	kind:namespace	line:3
+tc	../module.py	/^import tensorflow.contrib as tc$/;"	kind:namespace	line:2
+tc	../utils/tf_utils.py	/^import tensorflow.contrib as tc$/;"	kind:namespace	line:2
+tensorflow	../cpc.py	/^import tensorflow.contrib as tc$/;"	kind:namespace	line:3
+tensorflow	../module.py	/^import tensorflow.contrib as tc$/;"	kind:namespace	line:2
+tensorflow	../utils/tf_utils.py	/^import tensorflow.contrib as tc$/;"	kind:namespace	line:2
+terms	../train_model.py	/^        terms=4,$/;"	kind:variable	line:175
+tf	../cpc.py	/^import tensorflow as tf$/;"	kind:namespace	line:2
+tf	../module.py	/^import tensorflow as tf$/;"	kind:namespace	line:1
+tf	../train.py	/^import tensorflow as tf$/;"	kind:namespace	line:4
+tf	../utils/tf_utils.py	/^import tensorflow as tf$/;"	kind:namespace	line:1
+tf_utils	../module.py	/^from utils import utils, tf_utils$/;"	kind:namespace	line:3
+tf_utils.py	../utils/tf_utils.py	1;"	kind:file	line:1
+time	../utils/debug_tools.py	/^from time import strftime, gmtime, time$/;"	kind:namespace	line:1
+timeit	../train.py	/^from utils.debug_tools import timeit$/;"	kind:namespace	line:6
+timeit	../utils/debug_tools.py	/^def timeit(func, name=None):$/;"	kind:function	line:3
+train.py	../train.py	1;"	kind:file	line:1
+train_model	../train.py	/^def train_model(epochs):$/;"	kind:function	line:11
+train_model	../train_model.py	/^def train_model(epochs, batch_size, output_dir, code_size, lr=1e-4, terms=4, predict_terms=4, image_size=28, color=False):$/;"	kind:function	line:129
+train_model.py	../train_model.py	1;"	kind:file	line:1
+trainable_variables	../module.py	/^    def trainable_variables(self):$/;"	kind:member	line:37
+urlretrieve	../data_utils.py	/^            from urllib import urlretrieve$/;"	kind:namespace	line:29
+urlretrieve	../data_utils.py	/^            from urllib.request import urlretrieve$/;"	kind:namespace	line:31
+utils	../module.py	/^from utils import utils, tf_utils$/;"	kind:namespace	line:3
+utils	../train.py	/^from utils import utils$/;"	kind:namespace	line:7
+utils.py	../utils/utils.py	1;"	kind:file	line:1
+xavier_initializer	../utils/tf_utils.py	/^def xavier_initializer(uniform=False, seed=None, dtype=tf.float32):$/;"	kind:function	line:9
+yaml	../utils/utils.py	/^import yaml$/;"	kind:namespace	line:1

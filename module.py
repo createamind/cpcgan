@@ -45,8 +45,8 @@ class Module(object):
     """ this should be redefined if l2_regularizer is required in derived class """
     @property
     def l2_regularizer(self):
-        return tc.layers.l2_regularizer(0.)
-    
+        return tc.layers.l2_regularizer(self._args[self.name]['weight_decay'] if self.name in self._args else 0.)
+
     """ Implementation """
     def _build_graph(self):
         raise NotImplementedError
