@@ -119,7 +119,7 @@ def run_batch(cpc, history, future, label, dataset, i, losses, accuracies=None):
         accuracy = np.sum((prob > .5) == label) / np.size(label)
         accuracies.append(accuracy)
         print('\r{} step {: 4d}:\tLoss {: .4f}\tAccuracy {:.2f}\t \
-            Average Loss: {:.4f}\t Average Accuracy: {:.2f}'.format(dataset, (i % 1e3), loss, accuracy, np.mean(losses), np.mean(accuracies)), end="")
+            Average Loss: {:.4f}\t Average Accuracy: {:.2f}'.format(dataset, int(i % 1e3), loss, accuracy, np.mean(losses), np.mean(accuracies)), end="")
     else:                       # unsupervised learning, in which we don't have logits
         if dataset == 'Training':
             loss, _, summary = cpc.sess.run([cpc.loss, cpc.opt_op, cpc.merged_op], feed_dict=feed_dict)
@@ -128,7 +128,7 @@ def run_batch(cpc, history, future, label, dataset, i, losses, accuracies=None):
             loss = cpc.sess.run(cpc.loss, feed_dict=feed_dict)
 
         losses.append(loss)
-        print('\r{} step {: 4d}:\tLoss {: .4f}\tAverage Loss {:.4f}'.format(dataset, (i % 1e3), loss, np.mean(losses)), end="")
+        print('\r{} step {: 4d}:\tLoss {: .4f}\tAverage Loss {:.4f}'.format(dataset, int(i % 1e3), loss, np.mean(losses)), end="")
 
 if __name__ == "__main__":
 
