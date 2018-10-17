@@ -14,6 +14,7 @@ class CPC(Model):
         self.image_shape = [64, 64, 3]
         self.batch_size = args[name]['batch_size']
         self._loss_type = loss_type
+
         super(CPC, self).__init__(name, args, sess=sess, reuse=reuse, build_graph=build_graph, log_tensorboard=log_tensorboard)
         
         self.train_steps = 0
@@ -23,8 +24,8 @@ class CPC(Model):
         return self.sess.run(z, feed_dict={self.x: x})
 
     def optimize(self, feed_dict):
-        if self.log_tensorboard:
-            _, summary = self.sess.run([self.opt_op, self.merged_op], feed_dict=feed_dict)
+        if self._log_tensorboard:
+            _, summary = self.sess.run([self.opt_op, self.graph_summary], feed_dict=feed_dict)
             self.writer.add_summary(summary, self.train_steps)
 
             self.train_steps += 1
@@ -59,11 +60,11 @@ class CPC(Model):
             self.is_training = tf.placeholder(tf.bool, (None), name='is_training')
             self.x = tf.placeholder(tf.float32, [None, *self.image_shape], 'x')
 
-        if self.log_tensorboard:
+        if self._log_tensorboard:
             tf.summary.histogram('label', self.label)
 
     def _encode(self, x, reuse=None):
-        with tf.variable_scope('encoder', reuse=self.reuse if reuse is None else reuse):
+        with tf.variable_scope('encoder', reuse=self._reuse if reuse is None else reuse):
             x = self._conv_norm_activation(x, 64, 3, 2, padding='valid', normalization=tf.layers.batch_normalization, activation=lambda x: tf.nn.leaky_relu(x, 0.3))
             x = self._conv_norm_activation(x, 64, 3, 2, padding='valid', normalization=tf.layers.batch_normalization, activation=lambda x: tf.nn.leaky_relu(x, 0.3))
             x = self._conv_norm_activation(x, 64, 3, 2, padding='valid', normalization=tf.layers.batch_normalization, activation=lambda x: tf.nn.leaky_relu(x, 0.3))
@@ -76,7 +77,7 @@ class CPC(Model):
         return x
 
     def _autoregressive(self, x):
-        with tf.variable_scope('autoregressive', reuse=self.reuse):
+        with tf.variable_scope('autoregressive', reuse=self._reuse):
             cell = tc.rnn.GRUCell(256, name='ar_context')
 
             initial_state = cell.zero_state(self.batch_size, tf.float32)
@@ -93,7 +94,7 @@ class CPC(Model):
 
     def _supervised(self, context, z_future):
         predictions = []
-        with tf.variable_scope('prediction', reuse=self.reuse):
+        with tf.variable_scope('prediction', reuse=self._reuse):
             for _ in range(self.future_terms):
                 x = self._dense(context, self.code_size)
                 predictions.append(x)
@@ -105,7 +106,7 @@ class CPC(Model):
 
             loss = tf.losses.sigmoid_cross_entropy(self.label, logits)
 
-        if self.log_tensorboard:
+        if self._log_tensorboard:
             tf.summary.scalar('loss_', loss)
 
         return logits, loss

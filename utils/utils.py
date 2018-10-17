@@ -1,7 +1,6 @@
 import yaml
 import os
 import sys
-from scipy import ndimage
 
 def default_path(filename):
     return os.path.join(sys.path[0], filename)
@@ -27,8 +26,3 @@ def save_args(args, args_to_update=None, filename='args.yaml'):
         except yaml.YAMLError as exc:
             print(exc)
     
-def rotate_image(images, angle, cval=0):
-    return ndimage.rotate(images, angle, axes=(-2, -3), reshape=False, cval=cval)
-
-def shift_image(images, shift, cval=0):
-    return ndimage.shift(images, shift, cval=cval)

@@ -33,9 +33,11 @@ def ln_activation(x, activation=None):
 
     return x
 
-def norm_activation(x, normalization=None, activation=None, training=False):
+def norm_activation(x, normalization=None, activation=None, training=False, trainable=True):
     if normalization:
-        x = normalization(x, training=training) if 'batch_normalization' in str(normalization) else normalization(x)
+        x = (normalization(x, training=training, trainable=trainable) if
+                           'batch_normalization' in str(normalization) else
+                           normalization(x, trainable=trainable))
     if activation:
         x = activation(x)
 
