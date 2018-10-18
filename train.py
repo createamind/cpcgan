@@ -6,7 +6,7 @@ import tensorflow as tf
 from utils.debug_tools import timeit
 from utils import utils
 from cpc import CPC
-from data_utils import SortedNumberGenerator
+from data_utils import SortedNumberGenerator, compute_word_size
 
 """ Commented lines correspond to data augmentation, which takes so much time that I have to leave it behind """
 
@@ -24,11 +24,13 @@ def train_model(epochs, batch_size=32, learning_rate=1e-3, weight_decay=1e-4, co
 
     train_data = SortedNumberGenerator(batch_size=batch_size, subset='train', terms=terms,
                                        positive_samples=batch_size // 2, predict_terms=predict_terms,
-                                       image_size=image_size, color=color, rescale=False)
+                                       image_size=image_size, color=color, rescale=False,
+                                       min_int=0, max_int=5000)
 
     validation_data = SortedNumberGenerator(batch_size=batch_size, subset='valid', terms=terms,
                                             positive_samples=batch_size // 2, predict_terms=predict_terms,
-                                            image_size=image_size, color=color, rescale=False)
+                                            image_size=image_size, color=color, rescale=False,
+                                            min_int=6000, max_int=7000)
 
     name = 'cpc'
     cpc_args = {
