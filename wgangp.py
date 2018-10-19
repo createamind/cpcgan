@@ -63,7 +63,8 @@ class WGANGP(Model):
             self.interpolated_image = t * self.generator.generated_image + (1 - t) * self.image
 
         tf.summary.image('generated_image_' + self.idx, self.generator.generated_image)
-
+        tf.summary.image('original_image_' + self.idx, self.image)
+        
         self.real_critic = Critic('critic', self._critic_args(self.image), reuse=self._reuse, scope_prefix=self._variable_scope)
         self.fake_critic = Critic('critic', self._critic_args(self.generator.generated_image), reuse=True, scope_prefix=self._variable_scope)
         self.interpolated_critic = Critic('critic', self._critic_args(self.interpolated_image), reuse=True, scope_prefix=self._variable_scope)
