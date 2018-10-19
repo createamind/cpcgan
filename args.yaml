@@ -3,7 +3,7 @@ cpcgan:
     batch_size: 128
     color: False
     image_shape: [28, 28, 3]
-    code_size: 64   # is it too small? compared to context_size
+    code_size: 64   
     gan_coeff: 1    # coefficient for gan loss ,train weight
     cpc_coeff: 10   # coefficient for cpc loss,train weight
 
