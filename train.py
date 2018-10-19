@@ -30,7 +30,9 @@ def train_cpcgan(cpc_epochs, gan_epochs, has_validation=True):
     sess = tf.Session(config=config)
 
     cpcgan = timeit(lambda: CPCGAN(name, cpcgan_args, sess=sess, reuse=False, log_tensorboard=True), name='CPCGAN')
-    cpcgan.restore()
+    
+    cpcgan.restore_cpc()
+    # cpcgan.restore()
     if has_validation:
         test_cpcgan = timeit(lambda: CPCGAN(name, cpcgan_args, sess=sess, reuse=True, save=False), name='test_CPCGAN')
 
@@ -60,6 +62,7 @@ def train_cpc_no_valid(cpcgan, epochs, train_data, validation_data):
         print('\nTraining Epoch Is Done. \nStart Validation...')
 
         cpcgan.save()
+        cpcgan.save_cpc()
         print('Model Saved')
 
 def train_cpc(cpcgan, test_cpcgan, epochs, train_data, validation_data):
@@ -83,10 +86,12 @@ def train_cpc(cpcgan, test_cpcgan, epochs, train_data, validation_data):
         for j, ((history, future), label) in enumerate(validation_data):
             cpc_run_batch(test_cpcgan, history, future, label,
                     'Validation', j, losses, accuracies)
-            if j > 3e2:
+            if j >= 1e2:
                 break
         print('\nValidation Epoch Is Done.\n Start Saving...')
+        
         cpcgan.save()
+        cpcgan.save_cpc()
         print('Model Saved')
 
 def cpc_run_batch(cpcgan, history, future, label, dataset, i, losses, accuracies):
@@ -143,7 +148,7 @@ def train_gan(cpcgan, test_cpcgan, epochs, train_data, validation_data):
         for j, ((history, future), label) in enumerate(validation_data):
             gan_run_batch(test_cpcgan, history, future, label,
                     'Validation', j, generator_losses, critic_losses)
-            if j > 3e2:
+            if j >= 3e2:
                 break
         print('\nValidation Epoch Is Done.\n Start Saving...')
         cpcgan.save()
@@ -156,7 +161,7 @@ def gan_run_batch(cpcgan, history, future, label, dataset, i, generator_losses, 
     generator_losses.append(generator_loss)
     critic_losses.append(critic_loss)
     print('\r{} step {: 4d}:\tGenerator Loss {: .4f}\tCritic Loss {:.4f}\t \
-        Average Generato`r Loss: {:.4f}\t Average Critic Loss: {:.4f}'.format(dataset, int(i % 1e3), 
+        Average Generator Loss: {:.4f}\t Average Critic Loss: {:.4f}'.format(dataset, int(i % 1e3), 
                                                                             generator_loss, critic_loss, 
                                                                             np.mean(generator_losses), 
                                                                             np.mean(critic_losses)), end="")
@@ -164,4 +169,4 @@ def gan_run_batch(cpcgan, history, future, label, dataset, i, generator_losses, 
 
 if __name__ == "__main__":
 
-    train_cpcgan(1, 100, has_validation=False)
+    train_cpcgan(1, 100, has_validation=True)

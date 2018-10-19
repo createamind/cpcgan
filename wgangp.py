@@ -10,7 +10,7 @@ class WGANGP(Module):
     """ Interface """
     def __init__(self, name, args, batch_size, image_shape, 
                  code_size, code, image, idx, training=False,
-                 sess=None, reuse=False, build_graph=True, 
+                 reuse=False, build_graph=True, 
                  log_tensorboard=False, scope_prefix=''):
         self.batch_size = batch_size
         self.image_shape = image_shape

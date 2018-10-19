@@ -4,10 +4,10 @@ import tensorflow.contrib as tc
 
 from utils.utils import scope_name
 from utils import tf_utils
-from module import Module
+from module import Model
 
 
-class CPC(Module):
+class CPC(Model):
     """ Interface """
     def __init__(self, name, args, batch_size, image_shape, 
                  code_size, x_future=None, training=False,
@@ -26,7 +26,7 @@ class CPC(Module):
         self._training = training
         self._variable_scope = scope_name(scope_prefix, name)
 
-        super().__init__(name, args, reuse=reuse, build_graph=build_graph, log_tensorboard=log_tensorboard)
+        super().__init__(name, args, sess=sess, reuse=reuse, build_graph=build_graph, log_tensorboard=log_tensorboard)
         
     @property
     def global_variables(self):
@@ -55,7 +55,7 @@ class CPC(Module):
         else:
             self.loss = self._loss(self.context, z_future)
 
-        self.train_steps, self.opt_op = self._optimize_op(self.loss)
+        # self.train_steps, self.opt_op = self._optimize_op(self.loss)
 
     def _setup_placeholder(self):
         with tf.name_scope('placeholder'):

@@ -37,8 +37,8 @@ class CPCGAN(Model):
     def optimize_cpc(self, history, future, training, label):
         feed_dict = self._construct_feed_dict(history, future, training, label)
         if self._log_tensorboard:
-            train_steps, logits, loss, _, summary = self.sess.run([self.cpc.train_steps, self.cpc.logits, 
-                                                                    self.cpc.loss, self.cpc.opt_op, 
+            train_steps, logits, loss, _, summary = self.sess.run([self.train_steps, self.cpc.logits, 
+                                                                    self.cpc.loss, self.cpc_opt_op, 
                                                                     self.graph_summary], feed_dict=feed_dict)
             if self._time_to_save(train_steps):
                 self.writer.add_summary(summary, train_steps)
@@ -50,20 +50,25 @@ class CPCGAN(Model):
     def optimize_gan(self, history, future, training, label):
         feed_dict = self._construct_feed_dict(history, future, training, label)
         if self._log_tensorboard:
-            train_steps, generated_images, generator_loss, critic_loss, _, summary = self.sess.run([self.gan_train_steps, self.generated_images,
+            train_steps, generated_images, generator_loss, critic_loss, _, summary = self.sess.run([self.train_steps, self.generated_images,
                                                                                                     self.generator_loss, self.critic_loss, 
-                                                                                                    self.gan_opt_op, self.graph_summary], feed_dict=feed_dict)
+                                                                                                    self.gan_opt_op, self.graph_summary], 
+                                                                                                    feed_dict=feed_dict)
             if self._time_to_save(train_steps):
                 self._log_comparison(history, future, generated_images)
                 self.writer.add_summary(summary, train_steps)
 
-            self.sess.run([self.gan_train_steps, self.graph_summary], feed_dict=feed_dict)
+            self.sess.run([self.train_steps, self.graph_summary], feed_dict=feed_dict)
         else:
             generator_loss, critic_loss, _ = self.sess.run([self.generator_loss, self.critic_loss, self.gan_opt_op], feed_dict=feed_dict)
 
         return generator_loss, critic_loss
 
-    """ restore & save """
+    def save_cpc(self):
+        self.cpc.save()
+
+    def restore_cpc(self):
+        self.cpc.restore()
 
     """ Implementation """
     def _build_graph(self):
@@ -75,7 +80,8 @@ class CPCGAN(Model):
         self.cpc = CPC('cpc', cpc_args, 
                        self.batch_size, self.image_shape,
                        self._args['code_size'], training=self._training,
-                       reuse=self._reuse, build_graph=self._build_graph, 
+                       sess=self.sess, reuse=self._reuse, 
+                       build_graph=self._build_graph, 
                        log_tensorboard=self._log_tensorboard,
                        scope_prefix=self.name)
         
@@ -86,15 +92,18 @@ class CPCGAN(Model):
         self.gancpc = CPC('cpc', self._args['cpc'],
                           self.batch_size, self.image_shape,
                           self._args['code_size'], training=self._training,
-                          x_future=self.generated_images,
+                          sess=self.sess, x_future=self.generated_images,
                           reuse=True, build_graph=self._build_graph,
                           log_tensorboard=False,
                           scope_prefix=self.name)
 
         self.generator_loss, self.critic_loss = self._gan_loss(self.gans)
 
-        self.gan_train_steps, self.gan_opt_op = self._gan_opt_op(self.gan, self.generator_loss, self.critic_loss)
-        
+        self.train_steps, self.step_op, self.gan_opt_op = self._gan_opt_op(self.gan, self.generator_loss, self.critic_loss)
+
+        with tf.control_dependencies([self.step_op]):
+            _, self.cpc_opt_op = self.cpc.optimize_op(self.cpc.loss)
+
     def _gans(self):
         """ This actually returns multiple shallow copies of a single GAN with different input """
         gans = []
@@ -152,9 +161,9 @@ class CPCGAN(Model):
         return generator_loss, critic_loss
 
     def _gan_opt_op(self, gan, generator_loss, critic_loss):
-        with tf.variable_scope('gan_train_steps', reuse=self._reuse):
-            gan_train_steps = tf.get_variable('gan_train_steps', shape=(), initializer=tf.constant_initializer([0]), trainable=False)
-            step_op = tf.assign(gan_train_steps, gan_train_steps + 1, name='gan_update_train_step')
+        with tf.variable_scope('train_steps', reuse=self._reuse):
+            train_steps = tf.get_variable('train_steps', shape=(), initializer=tf.constant_initializer([0]), trainable=False)
+            step_op = tf.assign(train_steps, train_steps + 1, name='gan_update_train_step')
 
         with tf.variable_scope('gan_optimizer', reuse=self._reuse):
             generator_opt_op = gan.generator.optimize_op(generator_loss)
@@ -163,13 +172,15 @@ class CPCGAN(Model):
             with tf.control_dependencies([step_op]):
                 opt_op = tf.group(generator_opt_op, critic_opt_op)
 
-        return gan_train_steps, opt_op
+        return train_steps, step_op,  opt_op
 
     def _time_to_save(self, train_steps):
         return train_steps % 10 == 0
 
     def _add_model_to_args(self, args):
         model_dict = {
+            'model_root_dir': self._args['model_root_dir'],
+            'tensorboard_root_dir': self._args['tensorboard_root_dir'],
             'model_dir': self._args['model_dir'],
             'model_name': self._args['model_name']
         }

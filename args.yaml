@@ -1,6 +1,6 @@
 ---
 cpcgan:
-    batch_size: 128
+    batch_size: 64
     color: False
     image_shape: [28, 28, 3]
     code_size: 64   
@@ -13,14 +13,15 @@ cpcgan:
     model_root_dir: '/tmp/cpcgan/saved_models'
     tensorboard_root_dir: '/tmp/cpcgan/tensorboard_logs'
     model_dir: test
-    model_name: test
+    model_name: test2
     cpc:
-        learning_rate: 0.001
+        learning_rate: 0.00001
         weight_decay: 0.0001
         context_size: 256  #rnn gru cell size
         hist_terms: 4
         future_terms: 4
     gan:
-        learning_rate: 0.001
+        learning_rate: 0.00001
+        weight_decay: 0.0001
         noise_size: 10  #noise dim
         critic_coeff: 1.  # weight
