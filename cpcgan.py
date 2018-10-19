@@ -60,7 +60,7 @@ class CPCGAN(Model):
 
             self.sess.run([self.train_steps, self.graph_summary], feed_dict=feed_dict)
         else:
-            generator_loss, critic_loss, _ = self.sess.run([self.generator_loss, self.critic_loss, self.gan_opt_op], feed_dict=feed_dict)
+            generator_loss, critic_loss = self.sess.run([self.generator_loss, self.critic_loss], feed_dict=feed_dict)
 
         return generator_loss, critic_loss
 

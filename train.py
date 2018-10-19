@@ -102,8 +102,8 @@ def cpc_run_batch(cpcgan, history, future, label, dataset, i, losses, accuracies
     prob = 1 / (1 + np.exp(-logits))
     accuracy = np.sum((prob > .5) == label) / np.size(label)
     accuracies.append(accuracy)
-    print('\r{} step {: 4d}:\tLoss {: .4f}\tAccuracy {:.2f}\t \
-        Average Loss: {:.4f}\t Average Accuracy: {:.2f}'.format(dataset, int(i % 1e3), 
+    print('\r{} step {: 4d}:\tLoss {:2.4f}\tAccuracy {:3.2f}\t \
+        Average Loss: {:2.4f}\t Average Accuracy: {:3.2f}'.format(dataset, int(i % 1e3), 
                                                                 loss, accuracy, 
                                                                 np.mean(losses), 
                                                                 np.mean(accuracies)), end="")
@@ -160,8 +160,8 @@ def gan_run_batch(cpcgan, history, future, label, dataset, i, generator_losses, 
 
     generator_losses.append(generator_loss)
     critic_losses.append(critic_loss)
-    print('\r{} step {: 4d}:\tGenerator Loss {: .4f}\tCritic Loss {:.4f}\t \
-        Average Generator Loss: {:.4f}\t Average Critic Loss: {:.4f}'.format(dataset, int(i % 1e3), 
+    print('\r{} step {:4d}:\tGenerator Loss {:2.4f}\tCritic Loss {:2.4f}\t \
+        Average Generator Loss: {:2.4f}\t Average Critic Loss: {:2.4f}'.format(dataset, int(i % 1e3), 
                                                                             generator_loss, critic_loss, 
                                                                             np.mean(generator_losses), 
                                                                             np.mean(critic_losses)), end="")
