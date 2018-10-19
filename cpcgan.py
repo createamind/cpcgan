@@ -11,9 +11,7 @@ from wgangp import WGANGP
 class CPCGAN(Model):
     """ Interface """
     def __init__(self, name, args, sess=None, reuse=False, build_graph=True, 
-                 log_tensorboard=False, save=True, loss_type='supervised', 
-                 model_root_dir='/tmp/cpcgan/saved_models', 
-                 tensorboard_root_dir='/tmp/cpcgan/tensorboard_logs'):
+                 log_tensorboard=False, save=True, loss_type='supervised'):
         self.image_shape = args['image_shape']
         self.batch_size = args['batch_size']
         self.gan_coeff = args['gan_coeff']
@@ -24,8 +22,7 @@ class CPCGAN(Model):
         super().__init__(name, args, 
                         sess=sess, reuse=reuse, 
                         build_graph=build_graph, 
-                        log_tensorboard=log_tensorboard, 
-                        model_root_dir=model_root_dir)
+                        log_tensorboard=log_tensorboard, save=save)
 
         if self._log_tensorboard:
             # image log

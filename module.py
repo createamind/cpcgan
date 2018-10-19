@@ -202,10 +202,9 @@ class Module(object):
 
 class Model(Module):
     """ Interface """
-    def __init__(self, name, args, sess=None, reuse=False, 
-                 build_graph=True, log_tensorboard=False, save=True, 
-                 model_root_dir='/tmp/imin/saved_models', 
-                 tensorboard_root_dir='/tmp/imin/tensorboard_logs'):
+    def __init__(self, name, args,
+                 sess=None, reuse=False, build_graph=True, 
+                 log_tensorboard=False, save=True):
         # initialize session and global variables
         self.sess = sess if sess is not None else tf.get_default_session()
 
@@ -217,10 +216,10 @@ class Model(Module):
         self._saver = self._setup_saver(save)
 
         if self._saver:
-            self.model_name, self.model_dir, self.model_file = self._setup_model_path(root_dir=model_root_dir)
+            self.model_name, self.model_dir, self.model_file = self._setup_model_path(args['model_root_dir'])
 
         if self._log_tensorboard:
-            self.graph_summary, self.writer = self._setup_tensorboard_summary(tensorboard_root_dir)
+            self.graph_summary, self.writer = self._setup_tensorboard_summary(args['tensorboard_root_dir'])
     
     def restore(self):
         """ To restore the most recent model, simply leave filename None

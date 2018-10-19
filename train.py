@@ -156,7 +156,7 @@ def gan_run_batch(cpcgan, history, future, label, dataset, i, generator_losses, 
     generator_losses.append(generator_loss)
     critic_losses.append(critic_loss)
     print('\r{} step {: 4d}:\tGenerator Loss {: .4f}\tCritic Loss {:.4f}\t \
-        Average Generator Loss: {:.4f}\t Average Critic Loss: {:.4f}'.format(dataset, int(i % 1e3), 
+        Average Generato`r Loss: {:.4f}\t Average Critic Loss: {:.4f}'.format(dataset, int(i % 1e3), 
                                                                             generator_loss, critic_loss, 
                                                                             np.mean(generator_losses), 
                                                                             np.mean(critic_losses)), end="")
@@ -164,4 +164,4 @@ def gan_run_batch(cpcgan, history, future, label, dataset, i, generator_losses, 
 
 if __name__ == "__main__":
 
-    train_cpcgan(0, 100, has_validation=False)
+    train_cpcgan(1, 100, has_validation=False)
