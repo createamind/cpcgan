@@ -28,8 +28,6 @@ class WGANGP(Model):
                 
         super().__init__(name, args, sess, reuse=reuse, build_graph=build_graph, log_tensorboard=log_tensorboard, save=save)
 
-        self.sess.run(tf.global_variables_initializer())
-
     @property
     def global_variables(self):
         return tf.global_variables(scope=self._variable_scope)
