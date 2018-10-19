@@ -2,12 +2,18 @@
 cpcgan:
     batch_size: 128
     color: False
-    image_shape: [28, 28, 1]
+    image_shape: [28, 28, 3]
     code_size: 64   # is it too small? compared to context_size
     gan_coeff: 1   # coefficient for gan loss ,train weight
     cpc_coeff: 10   # coefficient for cpc loss,train weight
-    model_dir: cpcgan   #save dir
-    model_name: cpcgan
+
+    # model path: os.path.join(model_root_dir, model_dir, model_name)
+    # tensorboard path: os.path.join(tensorboard_root_dir, model_dir, model_name)
+    # each one should have his own *_root_dir to avoid conflict
+    model_root_dir: '/tmp/cpcgan/saved_models'
+    tensorboard_root_dir: '/tmp/cpcgan/tensorboard_logs'
+    model_dir: cpcgan
+    model_name: cpcgan  
     cpc:
         learning_rate: 0.001
         weight_decay: 0.0001
