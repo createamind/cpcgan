@@ -30,20 +30,17 @@ def train_cpcgan(cpc_epochs, gan_epochs, has_validation=True):
     sess = tf.Session(config=config)
 
     cpcgan = timeit(lambda: CPCGAN(name, cpcgan_args, sess=sess, reuse=False, log_tensorboard=True), name='CPCGAN')
+    cpcgan.restore()
     if has_validation:
         test_cpcgan = timeit(lambda: CPCGAN(name, cpcgan_args, sess=sess, reuse=True, save=False), name='test_CPCGAN')
 
-        if cpc_epochs == 0:
+        if cpc_epochs != 0:
             train_cpc(cpcgan, test_cpcgan, cpc_epochs, train_data, validation_data)
-        else:
-            cpcgan.restore_cpc()
 
         train_gan(cpcgan, test_cpcgan, gan_epochs, train_data, validation_data)
     else:
-        if cpc_epochs == 0:
+        if cpc_epochs != 0:
             train_cpc_no_valid(cpcgan, cpc_epochs, train_data, validation_data)
-        else:
-            cpcgan.restore_cpc()
 
         train_gan_no_valid(cpcgan, gan_epochs, train_data, validation_data)
 
@@ -167,6 +164,4 @@ def gan_run_batch(cpcgan, history, future, label, dataset, i, generator_losses, 
 
 if __name__ == "__main__":
 
-    train_cpcgan(
-        2, 100, has_validation=False
-    )
+    train_cpcgan(2, 100, has_validation=False)
