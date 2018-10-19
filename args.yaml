@@ -1,25 +1,25 @@
 ---
 cpcgan:
     batch_size: 128
-    image_shape: [28, 28, 3]
-    code_size: 10   # is it too small? compared to context_size
     color: False
-    gan_coeff: 1   # coefficient for gan loss
-    cpc_coeff: 1   # coefficient for cpc loss
-    model_dir: cpcgan
+    image_shape: [28, 28, 1]
+    code_size: 64   # is it too small? compared to context_size
+    gan_coeff: 1   # coefficient for gan loss ,train weight
+    cpc_coeff: 10   # coefficient for cpc loss,train weight
+    model_dir: cpcgan   #save dir
     model_name: cpcgan
     cpc:
         learning_rate: 0.001
         weight_decay: 0.0001
-        context_size: 256
+        context_size: 256  #rnn gru cell size
         hist_terms: 4
         future_terms: 4
         model_dir: cpcgan/cpc
         model_name: cpc
     gan:
         learning_rate: 0.001
-        noise_size: 10
-        predict_terms: 1
-        critic_coeff: 1.
+        noise_size: 10  #noise dim
+        predict_terms: 1999  # more than one ?? no use?
+        critic_coeff: 1.  # weight
         model_dir: cpcgan/gan
         model_name: gan
