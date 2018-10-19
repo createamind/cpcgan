@@ -19,7 +19,6 @@ cpcgan:
     gan:
         learning_rate: 0.001
         noise_size: 10  #noise dim
-        predict_terms: 1999  # more than one ?? no use?
         critic_coeff: 1.  # weight
         model_dir: cpcgan/gan
         model_name: gan
