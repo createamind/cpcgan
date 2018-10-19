@@ -391,7 +391,7 @@ def plot_sequences(x, y, labels=None, output_path=None):
 if __name__ == "__main__":
 
     # Test SortedNumberGenerator
-    ag = SortedNumberGenerator(batch_size=8, subset='train', terms=4, positive_samples=4, predict_terms=4, image_size=64, color=True, rescale=False)
+    ag = SortedNumberGenerator(batch_size=8, subset='train', terms=4, positive_samples=4, predict_terms=2, image_size=64, color=True, rescale=False)
     for (x, y), labels in ag:
         plot_sequences(x, y, labels, output_path=r'resources/batch_sample_sorted.png')
         break

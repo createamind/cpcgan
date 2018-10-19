@@ -303,7 +303,7 @@ class SortedNumberGenerator(object):
             
             if positive_samples_n <= 0:
                 # Set random predictions for negative samples
-                sentence[-self.predict_terms:] = np.mod(sentence[-self.predict_terms:] + np.random.randint(1, 10, self.predict_terms), 10)
+                sentence[-self.predict_terms:] = np.mod(sentence[-self.predict_terms:] + np.random.randint(1, 10, (self.predict_terms, self.word_size)), 10)
                 sentence_labels[b, :] = 0
 
             # Save sentence
@@ -417,7 +417,7 @@ def plot_sequences(x, y, labels=None, output_path=None):
 if __name__ == "__main__":
 
     # Test SortedNumberGenerator
-    ag = SortedNumberGenerator(batch_size=8, subset='train', terms=1, positive_samples=4, predict_terms=1, image_size=64, color=True, rescale=False)
+    ag = SortedNumberGenerator(batch_size=8, subset='train', terms=5, positive_samples=4, predict_terms=5, image_size=64, color=True, rescale=False)
     for (x, y), labels in ag:
         plot_sequences(x, y, labels, output_path=r'resources/batch_sample_sorted.png')
         break
