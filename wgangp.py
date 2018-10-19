@@ -4,14 +4,14 @@ import tensorflow.contrib as tc
 
 from utils.utils import scope_name
 from utils import tf_utils
-from module import Module, Model
+from module import Module
 
-class WGANGP(Model):
+class WGANGP(Module):
     """ Interface """
     def __init__(self, name, args, batch_size, image_shape, 
                  code_size, code, image, idx, training=False,
                  sess=None, reuse=False, build_graph=True, 
-                 log_tensorboard=False, save=True, scope_prefix=''):
+                 log_tensorboard=False, scope_prefix=''):
         self.batch_size = batch_size
         self.image_shape = image_shape
         self.code_size = code_size
@@ -26,7 +26,7 @@ class WGANGP(Model):
 
         self._variable_scope = scope_name(scope_prefix, name)
                 
-        super().__init__(name, args, sess, reuse=reuse, build_graph=build_graph, log_tensorboard=log_tensorboard, save=save)
+        super().__init__(name, args, reuse=reuse, build_graph=build_graph, log_tensorboard=log_tensorboard)
 
     @property
     def global_variables(self):

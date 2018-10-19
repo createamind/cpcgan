@@ -12,19 +12,15 @@ cpcgan:
     # each one should have his own *_root_dir to avoid conflict
     model_root_dir: '/tmp/cpcgan/saved_models'
     tensorboard_root_dir: '/tmp/cpcgan/tensorboard_logs'
-    model_dir: cpcgan
-    model_name: cpcgan  
+    model_dir: test
+    model_name: test
     cpc:
         learning_rate: 0.001
         weight_decay: 0.0001
         context_size: 256  #rnn gru cell size
         hist_terms: 4
         future_terms: 4
-        model_dir: cpcgan/cpc
-        model_name: cpc
     gan:
         learning_rate: 0.001
         noise_size: 10  #noise dim
         critic_coeff: 1.  # weight
-        model_dir: cpcgan/gan
-        model_name: gan

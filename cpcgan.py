@@ -12,7 +12,8 @@ class CPCGAN(Model):
     """ Interface """
     def __init__(self, name, args, sess=None, reuse=False, build_graph=True, 
                  log_tensorboard=False, save=True, loss_type='supervised', 
-                 model_root_dir='/tmp/cpcgan/saved_models', tensorboard_root_dir='/tmp/cpcgan/tensorboard_logs'):
+                 model_root_dir='/tmp/cpcgan/saved_models', 
+                 tensorboard_root_dir='/tmp/cpcgan/tensorboard_logs'):
         self.image_shape = args['image_shape']
         self.batch_size = args['batch_size']
         self.gan_coeff = args['gan_coeff']
@@ -27,8 +28,6 @@ class CPCGAN(Model):
                         model_root_dir=model_root_dir)
 
         if self._log_tensorboard:
-            self.graph_summary, self.writer = self._setup_tensorboard_summary(tensorboard_root_dir)
-
             # image log
             self.comparison, self.comparison_counter, self.comparison_log_op = self._setup_comparison_log()
 
@@ -68,27 +67,6 @@ class CPCGAN(Model):
         return generator_loss, critic_loss
 
     """ restore & save """
-    def restore_all(self):
-        self.restore()
-        self.restore_cpc()
-        self.restore_gan()
-
-    def restore_cpc(self):
-        self.cpc.restore()
-    
-    def restore_gan(self):
-        self.gan.restore()
-
-    def save_all(self):
-        self.save()
-        self.save_cpc()
-        self.save_gan()
-
-    def save_cpc(self):
-        self.cpc.save()
-
-    def save_gan(self):
-        self.gan.save()
 
     """ Implementation """
     def _build_graph(self):
@@ -100,10 +78,9 @@ class CPCGAN(Model):
         self.cpc = CPC('cpc', cpc_args, 
                        self.batch_size, self.image_shape,
                        self._args['code_size'], training=self._training,
-                       sess=self.sess, reuse=self._reuse, 
-                       build_graph=self._build_graph, 
+                       reuse=self._reuse, build_graph=self._build_graph, 
                        log_tensorboard=self._log_tensorboard,
-                       save=self._save, scope_prefix=self.name)
+                       scope_prefix=self.name)
         
         self.gans, self.generated_images = self._gans()
 
@@ -113,14 +90,13 @@ class CPCGAN(Model):
                           self.batch_size, self.image_shape,
                           self._args['code_size'], training=self._training,
                           x_future=self.generated_images,
-                          sess=self.sess, reuse=True, 
-                          build_graph=self._build_graph,
+                          reuse=True, build_graph=self._build_graph,
                           log_tensorboard=False,
-                          save=False, scope_prefix=self.name)
+                          scope_prefix=self.name)
 
         self.generator_loss, self.critic_loss = self._gan_loss(self.gans)
 
-        self.gan_opt_op = self._gan_opt_op(self.gan, self.generator_loss, self.critic_loss)
+        self.gan_train_steps, self.gan_opt_op = self._gan_opt_op(self.gan, self.generator_loss, self.critic_loss)
         
     def _gans(self):
         """ This actually returns multiple shallow copies of a single GAN with different input """
@@ -140,10 +116,10 @@ class CPCGAN(Model):
                         self._args['code_size'],
                         self.cpc.predictions[:, i, ...],
                         self.cpc.x_future[:, i, ...], i,
-                        training=self._training, sess=self.sess,
+                        training=self._training,
                         reuse=reuse, build_graph=self._build_graph, 
                         log_tensorboard=log_tensorboard,
-                        save=save, scope_prefix=self.name)
+                        scope_prefix=self.name)
 
             generated_image = gan.generator.generated_image
             gans.append(gan)
@@ -180,8 +156,8 @@ class CPCGAN(Model):
 
     def _gan_opt_op(self, gan, generator_loss, critic_loss):
         with tf.variable_scope('gan_train_steps', reuse=self._reuse):
-            self.gan_train_steps = tf.get_variable('gan_train_steps', shape=(), initializer=tf.constant_initializer([0]), trainable=False)
-            step_op = tf.assign(self.gan_train_steps, self.gan_train_steps + 1, name='gan_update_train_step')
+            gan_train_steps = tf.get_variable('gan_train_steps', shape=(), initializer=tf.constant_initializer([0]), trainable=False)
+            step_op = tf.assign(gan_train_steps, gan_train_steps + 1, name='gan_update_train_step')
 
         with tf.variable_scope('gan_optimizer', reuse=self._reuse):
             generator_opt_op = gan.generator.optimize_op(generator_loss)
@@ -190,16 +166,10 @@ class CPCGAN(Model):
             with tf.control_dependencies([step_op]):
                 opt_op = tf.group(generator_opt_op, critic_opt_op)
 
-        return opt_op
+        return gan_train_steps, opt_op
 
     def _time_to_save(self, train_steps):
         return train_steps % 10 == 0
-
-    def _setup_tensorboard_summary(self, root_dir):
-        graph_summary = tf.summary.merge_all()
-        writer = tf.summary.FileWriter(os.path.join(root_dir, self._args['model_dir'], self._args['model_name']), self.sess.graph)
-
-        return graph_summary, writer
 
     def _add_model_to_args(self, args):
         model_dict = {

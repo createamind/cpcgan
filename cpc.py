@@ -4,16 +4,16 @@ import tensorflow.contrib as tc
 
 from utils.utils import scope_name
 from utils import tf_utils
-from module import Model
+from module import Module
 
 
-class CPC(Model):
+class CPC(Module):
     """ Interface """
     def __init__(self, name, args, batch_size, image_shape, 
                  code_size, x_future=None, training=False,
                  sess=None, reuse=False, build_graph=True, 
-                 log_tensorboard=False, save=True,
-                 loss_type='supervised', scope_prefix=''):
+                 log_tensorboard=False, loss_type='supervised', 
+                 scope_prefix=''):
         self.code_size = code_size
         self.context_size = args['context_size']
         self.hist_terms = args['hist_terms']
@@ -26,12 +26,8 @@ class CPC(Model):
         self._training = training
         self._variable_scope = scope_name(scope_prefix, name)
 
-        super().__init__(name, args, sess=sess, reuse=reuse, build_graph=build_graph, log_tensorboard=log_tensorboard)
-
-    def encode(self, x):
-        z = self._encode(self.x)
-        return self.sess.run(z, feed_dict={self.x: x})
-
+        super().__init__(name, args, reuse=reuse, build_graph=build_graph, log_tensorboard=log_tensorboard)
+        
     @property
     def global_variables(self):
         return tf.global_variables(scope=self._variable_scope)
@@ -59,7 +55,7 @@ class CPC(Model):
         else:
             self.loss = self._loss(self.context, z_future)
 
-        self.opt_op = self._optimize_op(self.loss)
+        self.train_steps, self.opt_op = self._optimize_op(self.loss)
 
     def _setup_placeholder(self):
         with tf.name_scope('placeholder'):
