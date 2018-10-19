@@ -8,7 +8,7 @@ from utils import utils
 from cpcgan import CPCGAN
 from data_utils import SortedNumberGenerator
 
-def train_cpcgan(cpc_epochs, gan_epochs, to_train_cpc=True, has_validation=True):
+def train_cpcgan(cpc_epochs, gan_epochs, has_validation=True):
     name = 'cpcgan'
     cpcgan_args = utils.load_args()[name]
     batch_size = cpcgan_args['batch_size']
@@ -29,20 +29,18 @@ def train_cpcgan(cpc_epochs, gan_epochs, to_train_cpc=True, has_validation=True)
     config.gpu_options.allow_growth = True
     sess = tf.Session(config=config)
 
+    cpcgan = timeit(lambda: CPCGAN(name, cpcgan_args, sess=sess, reuse=False, log_tensorboard=True), name='CPCGAN')
     if has_validation:
-        cpcgan = timeit(lambda: CPCGAN(name, cpcgan_args, sess=sess, reuse=False, log_tensorboard=True), name='CPCGAN')
         test_cpcgan = timeit(lambda: CPCGAN(name, cpcgan_args, sess=sess, reuse=True, save=False), name='test_CPCGAN')
 
-        if to_train_cpc:
+        if cpc_epochs == 0:
             train_cpc(cpcgan, test_cpcgan, cpc_epochs, train_data, validation_data)
         else:
             cpcgan.restore_cpc()
 
         train_gan(cpcgan, test_cpcgan, gan_epochs, train_data, validation_data)
     else:
-        cpcgan = timeit(lambda: CPCGAN(name, cpcgan_args, sess=sess, reuse=False, log_tensorboard=True), name='CPCGAN')
-
-        if to_train_cpc:
+        if cpc_epochs == 0:
             train_cpc_no_valid(cpcgan, cpc_epochs, train_data, validation_data)
         else:
             cpcgan.restore_cpc()
@@ -170,5 +168,5 @@ def gan_run_batch(cpcgan, history, future, label, dataset, i, generator_losses, 
 if __name__ == "__main__":
 
     train_cpcgan(
-        2, 100, to_train_cpc=True, has_validation=False
+        2, 100, has_validation=False
     )

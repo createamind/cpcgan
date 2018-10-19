@@ -64,7 +64,7 @@ class WGANGP(Model):
 
         tf.summary.image('generated_image_' + self.idx, self.generator.generated_image)
         tf.summary.image('original_image_' + self.idx, self.image)
-        
+
         self.real_critic = Critic('critic', self._critic_args(self.image), reuse=self._reuse, scope_prefix=self._variable_scope)
         self.fake_critic = Critic('critic', self._critic_args(self.generator.generated_image), reuse=True, scope_prefix=self._variable_scope)
         self.interpolated_critic = Critic('critic', self._critic_args(self.interpolated_image), reuse=True, scope_prefix=self._variable_scope)
@@ -73,10 +73,6 @@ class WGANGP(Model):
         self.generator_loss = generator_loss
         self.critic_loss = (wasserstein_loss + self.critic_coeff 
                             * self._gradient_penalty(self.interpolated_critic.validity, self.interpolated_image))
-
-        if self._log_tensorboard:
-            tf.summary.scalar('generator_loss_', self.generator_loss)
-            tf.summary.scalar('critic_loss', self.critic_loss)
 
     def _generator_args(self):
         args = {

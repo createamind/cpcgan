@@ -139,17 +139,18 @@ class CPCGAN(Module):
         generator_losses = []
         critic_losses = []
 
-        for i in range(self.cpc.future_terms):
-            # consider use MSE instead of cpc_loss on z level or more directly x level
-            cpc_loss = tf.losses.sigmoid_cross_entropy(self.gancpc.label, tf.expand_dims(self.gancpc.individual_logits[:, i], axis=1))
-            generator_loss = self.gan_coeff * gans[i].generator_loss + self.cpc_coeff * cpc_loss
-            critic_loss = self.gan_coeff * gans[i].critic_loss
+        with tf.variable_scope('gan_loss'):
+            for i in range(self.cpc.future_terms):
+                # consider use MSE instead of cpc_loss on z level or more directly x level
+                cpc_loss = tf.losses.sigmoid_cross_entropy(self.gancpc.label, tf.expand_dims(self.gancpc.individual_logits[:, i], axis=1))
+                generator_loss = self.gan_coeff * gans[i].generator_loss + self.cpc_coeff * cpc_loss
+                critic_loss = self.gan_coeff * gans[i].critic_loss
 
-            generator_losses.append(generator_loss)
-            critic_losses.append(critic_loss)
+                generator_losses.append(generator_loss)
+                critic_losses.append(critic_loss)
 
-        generator_loss = tf.reduce_mean(generator_losses, name='generator_loss')
-        critic_loss = tf.reduce_mean(critic_losses, name='critic_loss')
+            generator_loss = tf.reduce_mean(generator_losses, name='generator_loss')
+            critic_loss = tf.reduce_mean(critic_losses, name='critic_loss')
 
         if self._log_tensorboard or self._log_tensorboard:
             with tf.name_scope('loss'):
