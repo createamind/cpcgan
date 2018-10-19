@@ -2,83 +2,94 @@ import numpy as np
 import tensorflow as tf
 import tensorflow.contrib as tc
 
+from utils.utils import scope_name
 from utils import tf_utils
 from module import Model
 
+
 class CPC(Model):
     """ Interface """
-    def __init__(self, name, args, sess, reuse=False, build_graph=True, log_tensorboard=True, loss_type='supervised'):
-        self.code_size = args[name]['code_size']
-        self.hist_terms = 4
-        self.future_terms = 4
-        self.image_shape = [64, 64, 3]
-        self.batch_size = args[name]['batch_size']
+    def __init__(self, name, args, batch_size, image_shape, 
+                 code_size, x_future=None, training=False,
+                 sess=None, reuse=False, build_graph=True, 
+                 log_tensorboard=False, save=True,
+                 loss_type='supervised', scope_prefix=''):
+        self.code_size = code_size
+        self.context_size = args['context_size']
+        self.hist_terms = args['hist_terms']
+        self.future_terms = args['future_terms']
+        self.image_shape = image_shape
+        self.batch_size = batch_size
         self._loss_type = loss_type
+        self.x_future = x_future
+ 
+        self._training = training
+        self._variable_scope = scope_name(scope_prefix, name)
 
-        super(CPC, self).__init__(name, args, sess=sess, reuse=reuse, build_graph=build_graph, log_tensorboard=log_tensorboard)
-        
-        self.train_steps = 0
+        super().__init__(name, args, sess=sess, reuse=reuse, build_graph=build_graph, log_tensorboard=log_tensorboard)
 
     def encode(self, x):
         z = self._encode(self.x)
         return self.sess.run(z, feed_dict={self.x: x})
 
-    def optimize(self, feed_dict):
-        if self._log_tensorboard:
-            _, summary = self.sess.run([self.opt_op, self.graph_summary], feed_dict=feed_dict)
-            self.writer.add_summary(summary, self.train_steps)
-
-            self.train_steps += 1
-        else:
-            self.sess.run(self.opt_op, feed_dict=feed_dict)
+    @property
+    def global_variables(self):
+        return tf.global_variables(scope=self._variable_scope)
+        
+    @property
+    def trainable_variables(self):
+        return tf.trainable_variables(scope=self._variable_scope)
 
     """ Implementation """
     def _build_graph(self):
         self._setup_placeholder()
 
-        x_history_flat = tf.reshape(self.x_history, [-1, *self.image_shape])
-        x_future_flat = tf.reshape(self.x_future, [-1, *self.image_shape])
+        x_history_flat = tf.reshape(self.x_history, [-1, *self.image_shape], name='x_history_flat')
+        x_future_flat = tf.reshape(self.x_future, [-1, *self.image_shape], name='x_future_flat')
         z_history_flat = self._encode(x_history_flat)
         z_future_flat = self._encode(x_future_flat, reuse=True)
 
-        z_history = tf.reshape(z_history_flat, [-1, self.hist_terms, self.code_size])
-        z_future = tf.reshape(z_future_flat, [-1, self.future_terms, self.code_size])
+        z_history = tf.reshape(z_history_flat, [-1, self.hist_terms, self.code_size], name='z_history')
+        z_future = tf.reshape(z_future_flat, [-1, self.future_terms, self.code_size], name='z_future')
         
         self.context = self._autoregressive(z_history)
 
         if self._loss_type == 'supervised':
-            self.logits, self.loss = self._loss(self.context, z_future)
+            self.predictions, self.individual_logits, self.logits, self.loss = self._loss(self.context, z_future)
         else:
             self.loss = self._loss(self.context, z_future)
-        self.opt_op = self._optimize(self.loss)
+
+        if self._log_tensorboard:
+            tf.summary.scalar('loss_', self.loss)
+
+        self.opt_op = self._optimize_op(self.loss)
 
     def _setup_placeholder(self):
         with tf.name_scope('placeholder'):
             self.x_history = tf.placeholder(tf.float32, [None, self.hist_terms, *self.image_shape], name='x_history')
-            self.x_future = tf.placeholder(tf.float32, [None, self.future_terms, *self.image_shape], name='x_future')
-            self.label = tf.placeholder(tf.int32, [None, 1], name='labels')
-            self.is_training = tf.placeholder(tf.bool, (None), name='is_training')
+            self.x_future = (tf.identity(self.x_future, name='x_future') if self.x_future is not None else
+                            tf.placeholder(tf.float32, [None, self.future_terms, *self.image_shape], name='x_future'))
+            self.label = tf.placeholder(tf.int32, [None, 1], name='label')
             self.x = tf.placeholder(tf.float32, [None, *self.image_shape], 'x')
-
-        if self._log_tensorboard:
-            tf.summary.histogram('label', self.label)
 
     def _encode(self, x, reuse=None):
         with tf.variable_scope('encoder', reuse=self._reuse if reuse is None else reuse):
-            x = self._conv_norm_activation(x, 64, 3, 2, padding='valid', normalization=tf.layers.batch_normalization, activation=lambda x: tf.nn.leaky_relu(x, 0.3))
-            x = self._conv_norm_activation(x, 64, 3, 2, padding='valid', normalization=tf.layers.batch_normalization, activation=lambda x: tf.nn.leaky_relu(x, 0.3))
-            x = self._conv_norm_activation(x, 64, 3, 2, padding='valid', normalization=tf.layers.batch_normalization, activation=lambda x: tf.nn.leaky_relu(x, 0.3))
-            x = self._conv_norm_activation(x, 64, 3, 2, padding='valid', normalization=tf.layers.batch_normalization, activation=lambda x: tf.nn.leaky_relu(x, 0.3))
+            bn = tf.layers.batch_normalization
+            leaky_relu = lambda x: tf.nn.leaky_relu(x, 0.3)
 
-            x = tf.reshape(x, [-1, 64 * 3 * 3])
-            x = self._dense_norm_activation(x, 256, normalization=tf.layers.batch_normalization, activation=lambda x: tf.nn.leaky_relu(x, 0.3))
+            x = self._conv_norm_activation(x, 64, 3, 2, padding='valid', normalization=bn, activation=leaky_relu)
+            x = self._conv_norm_activation(x, 64, 3, 2, padding='valid', normalization=bn, activation=leaky_relu)
+            x = self._conv_norm_activation(x, 64, 3, 2, padding='valid', normalization=bn, activation=leaky_relu)
+
+            x = tf.reshape(x, [-1, 2 * 2 * 64])
+            x = self._dense_norm_activation(x, 256, normalization=bn, activation=leaky_relu)
             x = self._dense(x, self.code_size)
 
         return x
 
     def _autoregressive(self, x):
         with tf.variable_scope('autoregressive', reuse=self._reuse):
-            cell = tc.rnn.GRUCell(256, name='ar_context')
+            cell = tc.rnn.GRUCell(self.context_size, name='ar_context')
 
             initial_state = cell.zero_state(self.batch_size, tf.float32)
 
@@ -95,22 +106,24 @@ class CPC(Model):
     def _supervised(self, context, z_future):
         predictions = []
         with tf.variable_scope('prediction', reuse=self._reuse):
+            # simple dense, one for each future term
             for _ in range(self.future_terms):
                 x = self._dense(context, self.code_size)
                 predictions.append(x)
             predictions = tf.stack(predictions, axis=1)
 
         with tf.name_scope('loss'):
-            logits = tf.reduce_mean(predictions * z_future, axis=-1)
-            logits = tf.reduce_mean(logits, axis=-1, keepdims=True)
+            individual_logits = tf.reduce_mean(predictions * z_future, axis=-1)
+            logits = tf.reduce_mean(individual_logits, axis=-1, keepdims=True)
 
             loss = tf.losses.sigmoid_cross_entropy(self.label, logits)
 
         if self._log_tensorboard:
             tf.summary.scalar('loss_', loss)
 
-        return logits, loss
+        return predictions, individual_logits, logits, loss
 
+    """ I've modified some code above, following code may not work anymore """
     def _dim(self, context, z):
         with tf.variable_scope('loss'):
             losses = []
@@ -119,13 +132,13 @@ class CPC(Model):
 
                 MI = E_joint - E_prod
 
-                if self.log_tensorboard:
+                if self._log_tensorboard:
                     tf.summary.scalar('Local_MI_{}'.format(i), MI)
 
                 losses.append(-MI)
             loss = tf.reduce_mean(losses)
 
-            if self.log_tensorboard:
+            if self._log_tensorboard:
                 tf.summary.scalar('loss_', loss)
 
         return loss
@@ -136,8 +149,8 @@ class CPC(Model):
             T_prod = self._get_score(context, z, shuffle=True)
 
             log2 = np.log(2.)
-            E_joint = tf.reduce_mean(log2 - tf.math.softplus(-T_joint))
-            E_prod = tf.reduce_mean(tf.math.softplus(-T_prod) + T_prod - log2)
+            E_joint = tf.reduce_mean(log2 - tf.math.softplus(tf.negative(T_joint)))
+            E_prod = tf.reduce_mean(tf.math.softplus(tf.negative(T_prod)) + T_prod - log2)
 
         return E_joint, E_prod
 

@@ -54,16 +54,16 @@ class Module(object):
     @property
     def l2_loss(self):
         return tf.losses.get_regularization_loss(scope=self.name, name=self.name + 'l2_loss')
-
-    def optimize(self, loss, tvars=None):
-        with tf.variable_scope(self.name + '_opt', reuse=self._reuse):
-            return self._optimize(loss, tvars=tvars)
             
+    def optimize_op(self, loss, tvars=None):
+        with tf.variable_scope(self.name + '_opt', reuse=self._reuse):
+            return self._optimize_op(loss, tvars=tvars)
+
     """ Implementation """
     def _build_graph(self):
         raise NotImplementedError
     
-    def _optimize(self, loss, tvars=None):
+    def _optimize_op(self, loss, tvars=None):
         # params for optimizer
         learning_rate = self._args['learning_rate'] if 'learning_rate' in self._args else 1e-3
         beta1 = self._args['beta1'] if 'beta1' in self._args else 0.9
@@ -75,20 +75,17 @@ class Module(object):
 
         with tf.variable_scope('optimizer', reuse=self._reuse):
             # setup optimizer
-            if decay_rate == 1.:
-                global_step = None
-                optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1, beta2=beta2)
-            else:
-                global_step = tf.get_variable('global_step', shape=(), initializer=tf.constant_initializer([0]), trainable=False)
-                learning_rate = tf.train.exponential_decay(learning_rate, global_step, decay_steps, decay_rate, staircase=True)
-                optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1, beta2=beta2)
+            self.train_steps = tf.get_variable('train_steps', shape=(), initializer=tf.constant_initializer([0]), trainable=False)
+            if decay_rate != 1.:
+                learning_rate = tf.train.exponential_decay(learning_rate, self.train_steps, decay_steps, decay_rate, staircase=True)
+            optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1, beta2=beta2)
 
             update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
             with tf.control_dependencies(update_ops):
                 tvars = self.trainable_variables if tvars is None else tvars
                 grads, tvars = list(zip(*optimizer.compute_gradients(loss, var_list=tvars)))
                 grads, _ = tf.clip_by_global_norm(grads, clip_norm)
-                opt_op = optimizer.apply_gradients(zip(grads, tvars), global_step=global_step)
+                opt_op = optimizer.apply_gradients(zip(grads, tvars), global_step=self.train_steps)
 
         if self._log_tensorboard:
             if decay_rate != 1:
@@ -201,7 +198,9 @@ class Module(object):
 
 class Model(Module):
     """ Interface """
-    def __init__(self, name, args, sess=None, reuse=False, build_graph=True, log_tensorboard=False, save=True):
+    def __init__(self, name, args, sess=None, reuse=False, 
+                 build_graph=True, log_tensorboard=False, save=True, 
+                 model_root_dir='/tmp/cpcgan/saved_models'):
         # initialize session and global variables
         self.sess = sess if sess is not None else tf.get_default_session()
 
@@ -213,11 +212,8 @@ class Model(Module):
         self._saver = self._setup_saver(save)
 
         if self._saver:
-            self.model_name, self.model_dir, self.model_file = self._setup_model_path()
+            self.model_name, self.model_dir, self.model_file = self._setup_model_path(root_dir=model_root_dir)
 
-        if self._log_tensorboard:
-            self.graph_summary, self.writer = self._setup_tensorboard_summary()
-    
     def restore(self):
         """ To restore the most recent model, simply leave filename None
         To restore a specific version of model, set filename to the model stored in saved_models
@@ -234,13 +230,10 @@ class Model(Module):
             self._saver.save(self.sess, self.model_file)
 
     """ Implementation """
-    def _setup_tensorboard_summary(self, root_dir='/tmp/imin/tensorboard_logs'):
-        graph_summary = tf.summary.merge_all()
-        writer = tf.summary.FileWriter(os.path.join(root_dir, self._args['model_dir'], self._args['model_name']), self.sess.graph)
+    def _setup_saver(self, save):
+        return tf.train.Saver(self.global_variables) if save else None
 
-        return graph_summary, writer
-
-    def _setup_model_path(self, root_dir='/tmp/imin/saved_models'):
+    def _setup_model_path(self, root_dir):
         model_dir = os.path.join(root_dir, self._args['model_dir'])
 
         if not os.path.isdir(model_dir):
@@ -250,7 +243,3 @@ class Model(Module):
         model_file = os.path.join(model_dir, model_name)
 
         return model_name, model_dir, model_file
-
-    def _setup_saver(self, save):
-        return tf.train.Saver(self.global_variables) if save else None
-        

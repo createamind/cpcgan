@@ -34,6 +34,7 @@ def ln_activation(x, activation=None):
     return x
 
 def norm_activation(x, normalization=None, activation=None, training=False, trainable=True):
+    """  normalization should be of tf.layers level and not lambda """
     if normalization:
         x = (normalization(x, training=training, trainable=trainable) if
                            'batch_normalization' in str(normalization) else

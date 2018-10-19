@@ -1,15 +1,25 @@
 ---
-cpc:
-    learning_rate: 0.001
-    weight_decay: 0.0001
-    code_size: 128
-
-WGANGP:
-    image_shape: [28, 28, 3]
-    code_size: 10
-    predict_terms: 1
+cpcgan:
     batch_size: 128
-    coeff: 1.
-batch_size: 128
-
-model_name: supervised
+    image_shape: [28, 28, 3]
+    code_size: 10   # is it too small? compared to context_size
+    color: False
+    gan_coeff: 1   # coefficient for gan loss
+    cpc_coeff: 1   # coefficient for cpc loss
+    model_dir: cpcgan
+    model_name: cpcgan
+    cpc:
+        learning_rate: 0.001
+        weight_decay: 0.0001
+        context_size: 256
+        hist_terms: 4
+        future_terms: 4
+        model_dir: cpcgan/cpc
+        model_name: cpc
+    gan:
+        learning_rate: 0.001
+        noise_size: 10
+        predict_terms: 1
+        critic_coeff: 1.
+        model_dir: cpcgan/gan
+        model_name: gan

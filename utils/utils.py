@@ -26,3 +26,5 @@ def save_args(args, args_to_update=None, filename='args.yaml'):
         except yaml.YAMLError as exc:
             print(exc)
     
+def scope_name(scope_prefix, name):
+    return scope_prefix + '/' + name
