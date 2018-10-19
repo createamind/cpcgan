@@ -170,5 +170,5 @@ def gan_run_batch(cpcgan, history, future, label, dataset, i, generator_losses, 
 if __name__ == "__main__":
 
     train_cpcgan(
-        1, 100, to_train_cpc=True, has_validation=False
+        2, 100, to_train_cpc=True, has_validation=False
     )

@@ -8,6 +8,14 @@ import scipy
 import sys
 from matplotlib import pyplot as plt
 
+def compute_word_size(max_int):
+    word_size = 0
+
+    while max_int > 0:
+            max_int //= 10
+            word_size += 1
+    
+    return word_size
 
 class MnistHandler(object):
 
@@ -230,7 +238,7 @@ class SortedNumberGenerator(object):
 
     ''' Data generator providing lists of sorted numbers '''
 
-    def __init__(self, batch_size, subset, terms, positive_samples=1, predict_terms=1, image_size=28, color=False, rescale=True):
+    def __init__(self, batch_size, subset, terms, positive_samples=1, predict_terms=1, image_size=28, color=False, rescale=True, max_int=90, min_int=0):
 
         # Set params
         self.positive_samples = positive_samples
@@ -246,6 +254,9 @@ class SortedNumberGenerator(object):
         self.mnist_handler = MnistHandler()
         self.n_samples = self.mnist_handler.get_n_samples(subset) // terms
         self.n_batches = self.n_samples // batch_size
+        self.max_int = max_int
+        self.min_int = min_int
+        self.word_size = compute_word_size(self.max_int)
 
     def __iter__(self):
         return self
@@ -257,51 +268,67 @@ class SortedNumberGenerator(object):
         return self.n_batches
 
     def next(self):
+        def consecutive_numbers(hist_num, future_num):
+            start = np.random.randint(self.min_int, self.max_int+1)
+            
+            def array_n(n):
+                result = np.zeros(self.word_size, dtype=np.int8)
+                for i in range(1, self.word_size + 1):
+                    result[-i] = n % 10
+                    n //= 10
+
+                return result
+            
+            result = np.array([array_n(start + i) for i in range(hist_num + future_num)])
+        
+            return result
+
+        def concat_number(images):
+            batch_size, sequence_len, word_size, height, width, channel = images.shape
+            images = np.transpose(images, [0, 1, 2, 4, 3, 5])
+            images = images.reshape(batch_size, sequence_len, word_size * width, height, channel)
+            images = np.transpose(images, [0, 1, 3, 2, 4])
+
+            return images
 
         # Build sentences
-        image_labels = np.zeros((self.batch_size, self.terms + self.predict_terms + self.predict_terms))
-        # true_image_labels = np.zeros((self.batch_size, self.terms + self.predict_terms))
+        image_labels = np.zeros((self.batch_size, self.terms + self.predict_terms, self.word_size))
         sentence_labels = np.ones((self.batch_size, 1)).astype('int32')
         positive_samples_n = self.positive_samples
         for b in range(self.batch_size):
 
             # Set ordered predictions for positive samples
-            seed = np.random.randint(0, 10)
-            sentence = np.mod(np.arange(seed, seed + self.terms + self.predict_terms), 10)
+            sentence = consecutive_numbers(self.terms, self.predict_terms)
             # true_sentence = np.copy(sentence)
-            sentence = np.concatenate([sentence, sentence[-self.predict_terms:]], axis=0)
+            
             if positive_samples_n <= 0:
-
                 # Set random predictions for negative samples
                 # Each predicted term draws a number from a distribution that excludes itself
-                numbers = np.arange(0, 10)
+                idx = np.arange(self.terms, self.terms + self.predict_terms)
+                original_idx = np.arange(self.terms, self.terms + self.predict_terms)
+                while idx == original_idx:
+                    idx = np.random.randint(self.terms + self.predict_terms, size=self.predict_terms)
                 predicted_terms = sentence[-self.predict_terms:]
-                for i, p in enumerate(predicted_terms):
-                    predicted_terms[i] = np.random.choice(numbers[numbers != p], 1)
-                sentence[-self.predict_terms:] = np.mod(predicted_terms, 10)
+                predicted_terms = sentence[idx]
+                sentence[-self.predict_terms:] = predicted_terms
                 sentence_labels[b, :] = 0
 
             # Save sentence
             image_labels[b, :] = sentence
-            # true_image_labels[b, :] = true_sentence
             positive_samples_n -= 1
 
         # Retrieve actual images
         images, _ = self.mnist_handler.get_batch_by_labels(self.subset, image_labels.flatten(), self.image_size, self.color, self.rescale)
-        # true_images, _ = self.mnist_handler.get_batch_by_labels(self.subset, true_image_labels.flatten(), self.image_size, self.color, self.rescale)
 
         # Assemble batch
-        images = images.reshape((self.batch_size, self.terms + self.predict_terms + self.predict_terms, images.shape[1], images.shape[2], images.shape[3]))
-        # true_images = true_images.reshape((self.batch_size, self.terms + self.predict_terms, true_images.shape[1], true_images.shape[2], true_images.shape[3]))
-        
-        x_images = images[:, :self.terms, ...]
-        z_images = images[:, self.terms: -self.predict_terms, ...]
-        y_images = images[:, -self.predict_terms:, ...]
+        images = images.reshape((self.batch_size, self.terms + self.predict_terms, self.word_size, images.shape[1], images.shape[2], images.shape[3]))
+        x_images = concat_number(images[:, :-self.predict_terms, ...])
+        y_images = concat_number(images[:, -self.predict_terms:, ...])
+
         # Randomize
         idxs = np.random.choice(sentence_labels.shape[0], sentence_labels.shape[0], replace=False)
 
-        # return [x_images[idxs, ...], y_images[idxs, ...], z_images[idxs, ...]], [sentence_labels[idxs, ...], np.zeros((self.batch_size, 1))]
-        return [x_images[idxs, ...], y_images[idxs, ...], z_images[idxs, ...]], [sentence_labels[idxs, ...]]
+        return (x_images[idxs, ...], y_images[idxs, ...]), sentence_labels[idxs, ...]
 
 
 class SameNumberGenerator(object):
@@ -397,7 +424,7 @@ def plot_sequences(x, y, labels=None, output_path=None):
 if __name__ == "__main__":
 
     # Test SortedNumberGenerator
-    ag = SortedNumberGenerator(batch_size=8, subset='train', terms=4, positive_samples=4, predict_terms=4, image_size=64, color=True, rescale=False)
+    ag = SortedNumberGenerator(batch_size=8, subset='train', terms=1, positive_samples=4, predict_terms=1, image_size=64, color=True, rescale=False)
     for (x, y), labels in ag:
         plot_sequences(x, y, labels, output_path=r'resources/batch_sample_sorted.png')
         break

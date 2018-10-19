@@ -59,9 +59,6 @@ class CPC(Model):
         else:
             self.loss = self._loss(self.context, z_future)
 
-        if self._log_tensorboard:
-            tf.summary.scalar('loss_', self.loss)
-
         self.opt_op = self._optimize_op(self.loss)
 
     def _setup_placeholder(self):
