@@ -9,7 +9,7 @@ from module import Module
 class WGANGP(Module):
     """ Interface """
     def __init__(self, name, args, batch_size, image_shape, 
-                 code_size, code, image, idx, training=False,
+                 code_size, code, image, training=False,
                  reuse=False, build_graph=True, 
                  log_tensorboard=False, scope_prefix=''):
         self.batch_size = batch_size
@@ -19,7 +19,6 @@ class WGANGP(Module):
         self.z_size = self.code_size + self.noise_size
         self.code = code
         self.image = image
-        self.idx = str(idx) # used to avoid tensorboard collapse
 
         self._training = training
         self.critic_coeff = args['critic_coeff']
