@@ -72,7 +72,7 @@ def train_cpc_no_valid(cpcgan, epochs, train_data, validation_data):
             i += 1
             if i % 1e3 == 0:
                 break
-        print('\nTraining Epoch Is Done. \nStart Validation...')
+        print('\nTraining Epoch Is Done. ')
 
         cpcgan.save()
         print('Model Saved')
@@ -132,7 +132,7 @@ def train_gan_no_valid(cpcgan, epochs, train_data, validation_data):
             i += 1
             if i % 1e3 == 0:
                 break
-        print('\nTraining Epoch Is Done. \nStart Validation...')
+        print('\nTraining Epoch Is Done. ')
 
         cpcgan.save()
         print('Model Saved')
@@ -179,4 +179,4 @@ def gan_run_batch(cpcgan, history, future, label, dataset, i, generator_losses, 
 
 if __name__ == "__main__":
 
-    train_cpcgan(10000, 100, has_validation=False)
+    train_cpcgan(10000, 100, has_validation=True)
