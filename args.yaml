@@ -12,7 +12,7 @@ cpcgan:
     # each one should have his own *_root_dir to avoid conflict
     model_root_dir: '/tmp/cpcgan/saved_models'
     tensorboard_root_dir: '/tmp/cpcgan/tensorboard_logs'
-    model_dir: Day1
+    model_dir: Day2
     model_name: lr_1e-4
     cpc:
         learning_rate: 0.0001
