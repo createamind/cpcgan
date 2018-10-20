@@ -71,10 +71,10 @@ class CPC(Module):
             leaky_relu = lambda x: tf.nn.leaky_relu(x, 0.3)
 
             x = self._conv_norm_activation(x, 64, 3, 2, padding='valid', normalization=bn, activation=leaky_relu)
-            x = self._conv_norm_activation(x, 64, 3, 2, padding='valid', normalization=bn, activation=leaky_relu)
-            x = self._conv_norm_activation(x, 64, 3, 2, padding='valid', normalization=bn, activation=leaky_relu)
+            x = self._conv_norm_activation(x, 128, 3, 2, padding='valid', normalization=bn, activation=leaky_relu)
+            x = self._conv_norm_activation(x, 256, 3, 2, padding='valid', normalization=bn, activation=leaky_relu)
 
-            x = tf.reshape(x, [-1, 2 * 2 * 64])
+            x = tf.reshape(x, [-1, 2 * 9 * 256])
             x = self._dense_norm_activation(x, 256, normalization=bn, activation=leaky_relu)
             x = self._dense(x, self.code_size)
 

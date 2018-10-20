@@ -6,7 +6,7 @@ import tensorflow as tf
 from utils.debug_tools import timeit
 from utils import utils
 from cpcgan import CPCGAN
-from data_utils import SortedNumberGenerator
+from data_utils_consecutive import SortedNumberGenerator
 
 def train_cpcgan(cpc_epochs, gan_epochs, has_validation=True):
     name = 'cpcgan'
@@ -24,6 +24,21 @@ def train_cpcgan(cpc_epochs, gan_epochs, has_validation=True):
     validation_data = SortedNumberGenerator(batch_size=batch_size, subset='valid', terms=terms,
                                             positive_samples=batch_size // 2, predict_terms=predict_terms,
                                             image_size=image_size, color=color, rescale=False)
+
+    # Prepare data
+    train_data = SortedNumberGenerator(batch_size=batch_size, subset='train', terms=terms,
+                                       positive_samples=batch_size // 2, predict_terms=predict_terms,
+                                       image_size=image_size, color=color, rescale=True,
+                                       max_int=630, min_int=0)
+
+    validation_data = SortedNumberGenerator(batch_size=batch_size, subset='valid', terms=terms,
+                                            positive_samples=batch_size // 2, predict_terms=predict_terms,
+                                            image_size=image_size, color=color, rescale=True,
+                                            max_int=777, min_int=630)
+
+
+
+
 
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
@@ -164,4 +179,4 @@ def gan_run_batch(cpcgan, history, future, label, dataset, i, generator_losses, 
 
 if __name__ == "__main__":
 
-    train_cpcgan(1, 100, has_validation=False)
+    train_cpcgan(10000, 100, has_validation=False)

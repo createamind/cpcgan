@@ -2,7 +2,7 @@
 cpcgan:
     batch_size: 128
     color: False
-    image_shape: [28, 28, 3]
+    image_shape: [28, 84, 3]
     code_size: 64   
     gan_coeff: 1    # coefficient for gan loss ,train weight
     cpc_coeff: 10   # coefficient for cpc loss,train weight
@@ -17,7 +17,7 @@ cpcgan:
     cpc:
         learning_rate: 0.001
         weight_decay: 0.0001
-        context_size: 256  #rnn gru cell size
+        context_size: 512  #rnn gru cell size
         hist_terms: 4
         future_terms: 4
     gan:
