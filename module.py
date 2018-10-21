@@ -209,13 +209,10 @@ class Model(Module):
         self.sess = sess if sess is not None else tf.get_default_session()
 
         super(Model, self).__init__(name, args, reuse, build_graph, log_tensorboard)
-            
-        if build_graph:
-            self.sess.run(tf.global_variables_initializer())
-    
-        self._saver = self._setup_saver(save)
 
-        if self._saver:
+        self._saver = None # self._setup_saver(save)
+
+        if save:
             self.model_name, self.model_dir, self.model_file = self._setup_model_path(args['model_root_dir'])
 
         if self._log_tensorboard:
@@ -241,7 +238,7 @@ class Model(Module):
         return tf.train.Saver(self.global_variables) if save else None
 
     def _setup_model_path(self, root_dir):
-        model_dir = os.path.join(root_dir, self._args['model_dir'])
+        model_dir = os.path.join(root_dir, self._args['model_dir'], self._args['model_name'])
 
         if not os.path.isdir(model_dir):
             os.makedirs(model_dir)

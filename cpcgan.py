@@ -11,28 +11,33 @@ from wgangp import WGANGP
 class CPCGAN(Model):
     """ Interface """
     def __init__(self, name, args, sess=None, reuse=False, build_graph=True, 
-                 log_tensorboard=False, save=True, loss_type='supervised'):
+                 log_tensorboard=False, save=True, save_cpc_only=False, loss_type='supervised'):
         self.image_shape = args['image_shape']
         self.batch_size = args['batch_size']
         self.gan_coeff = args['gan_coeff']
         self.cpc_coeff = args['cpc_coeff']
 
         self._save = save
+        self._save_cpc_only = save_cpc_only
 
         super().__init__(name, args, 
                         sess=sess, reuse=reuse, 
                         build_graph=build_graph, 
-                        log_tensorboard=log_tensorboard, save=save)
+                        log_tensorboard=log_tensorboard, save=self._save)
 
         if self._log_tensorboard:
             # image log
             self.comparison, self.comparison_counter, self.comparison_log_op = self._setup_comparison_log()
+        
+        if build_graph and not self._reuse:
+            self.sess.run(tf.global_variables_initializer())
 
-        # initialize gan's optimizer annd sequence_counter
-        self.sess.run(tf.global_variables_initializer())
-
-        # this saver only stores sequence_counter, cpc and gan have their own saver
-        self._saver = self._setup_saver_comparison(save)
+        # reset saver to include comparison_counter
+        self._saver = None if self._save_cpc_only else self._setup_saver(save)
+        
+    @property
+    def global_variables(self):
+        return tf.global_variables(scope=self.name) + tf.global_variables(scope='comparison')
 
     def optimize_cpc(self, history, future, training, label):
         feed_dict = self._construct_feed_dict(history, future, training, label)
@@ -42,6 +47,7 @@ class CPCGAN(Model):
                                                                     self.graph_summary], feed_dict=feed_dict)
             if self._time_to_save(train_steps):
                 self.writer.add_summary(summary, train_steps)
+                self.save()
         else:
             logits, loss = self.sess.run([self.cpc.logits, self.cpc.loss], feed_dict=feed_dict)
 
@@ -57,6 +63,8 @@ class CPCGAN(Model):
             if self._time_to_save(train_steps):
                 self._log_comparison(history, future, generated_images)
                 self.writer.add_summary(summary, train_steps)
+                if not self._save_cpc_only:
+                    self.save()
 
             self.sess.run([self.train_steps, self.graph_summary], feed_dict=feed_dict)
         else:
@@ -64,16 +72,25 @@ class CPCGAN(Model):
 
         return generator_loss, critic_loss
 
-    def save_cpc(self):
-        self.cpc.save()
+    def save(self):
+        if self._save:
+            self.cpc.save() if self._save_cpc_only else self._saver.save(self.sess, self.model_file)
 
-    def restore_cpc(self):
-        self.cpc.restore()
+    def restore(self):
+        if self._save_cpc_only:
+            self.cpc.restore() 
+        else:
+            try:
+                self._saver.restore(self.sess, self.model_file)
+            except:
+                print('Model {}: No saved model for "{}" is found. \nStart Training from Scratch!'.format(self.model_name, self.name))
+            else:
+                print("Model {}: Params for {} are restored.".format(self.model_name, self.name))
+
 
     """ Implementation """
     def _build_graph(self):
-        with tf.name_scope('placeholder'):
-            self._training = tf.placeholder(tf.bool, [], name='training')
+        self._training = self._setup_placeholder()
 
         cpc_args = self._add_model_to_args(self._args['cpc'])
 
@@ -104,6 +121,12 @@ class CPCGAN(Model):
         with tf.control_dependencies([self.step_op]):
             _, self.cpc_opt_op = self.cpc.optimize_op(self.cpc.loss)
 
+    def _setup_placeholder(self):
+        with tf.name_scope('placeholder'):
+            _training = tf.placeholder(tf.bool, [], name='training')
+
+        return _training
+        
     def _gans(self):
         """ This actually returns multiple shallow copies of a single GAN with different input """
         gans = []
@@ -121,7 +144,7 @@ class CPCGAN(Model):
                         self.batch_size, self.image_shape,
                         self._args['code_size'],
                         self.cpc.predictions[:, i, ...],
-                        self.cpc.x_future[:, i, ...], i,
+                        self.cpc.x_future[:, i, ...],
                         training=self._training,
                         reuse=reuse, build_graph=self._build_graph, 
                         log_tensorboard=log_tensorboard,
@@ -175,7 +198,7 @@ class CPCGAN(Model):
         return train_steps, step_op,  opt_op
 
     def _time_to_save(self, train_steps):
-        return train_steps % 10 == 0
+        return train_steps % 100 == 0
 
     def _add_model_to_args(self, args):
         model_dict = {
@@ -221,10 +244,7 @@ class CPCGAN(Model):
                 comparison_log_op = tf.summary.merge([comparison_log], name='comparison_log_op')
 
         return comparison, comparison_counter, comparison_log_op
-            
-    def _setup_saver_comparison(self, save):
-        return tf.train.Saver(tf.global_variables(scope='comparison')) if save else None
-        
+
     def _log_comparison(self, history, future, generated_images):
         images = self._concate_images(history, future, generated_images)
 
