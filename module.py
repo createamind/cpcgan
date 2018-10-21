@@ -18,7 +18,7 @@ class Module(object):
         self.name = name
         self._args = args
         self._reuse = reuse
-        self._log_tensorboard = log_tensorboard
+        self.log_tensorboard = log_tensorboard
 
         if build_graph:
             self.build_graph()
@@ -89,7 +89,7 @@ class Module(object):
                 grads, _ = tf.clip_by_global_norm(grads, clip_norm)
                 opt_op = optimizer.apply_gradients(zip(grads, tvars), global_step=train_steps)
 
-        if self._log_tensorboard:
+        if self.log_tensorboard:
             if decay_rate != 1:
                 tf.summary.scalar('learning_rate_', learning_rate)
 
@@ -215,7 +215,7 @@ class Model(Module):
         if save:
             self.model_name, self.model_dir, self.model_file = self._setup_model_path(args['model_root_dir'])
 
-        if self._log_tensorboard:
+        if self.log_tensorboard:
             self.graph_summary, self.writer = self._setup_tensorboard_summary(args['tensorboard_root_dir'])
     
     def restore(self):

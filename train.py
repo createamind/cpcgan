@@ -8,7 +8,7 @@ from utils import utils
 from cpcgan import CPCGAN
 from data_utils import SortedNumberGenerator
 
-def train_cpcgan(cpc_epochs, gan_epochs, has_validation=True):
+def train_cpcgan(cpc_epochs, gan_epochs):
     name = 'cpcgan'
     cpcgan_args = utils.load_args()[name]
     batch_size = cpcgan_args['batch_size']
@@ -33,40 +33,16 @@ def train_cpcgan(cpc_epochs, gan_epochs, has_validation=True):
     
     # cpcgan.restore_cpc()  # restore cpc only
     cpcgan.restore()      # restore the entire cpcgan
-    if has_validation:
-        test_cpcgan = timeit(lambda: CPCGAN(name, cpcgan_args, sess=sess, reuse=True, save=False), name='test_CPCGAN')
+    if cpc_epochs != 0:
+        train_cpc(cpcgan, cpc_epochs, train_data, validation_data)
 
-        if cpc_epochs != 0:
-            train_cpc(cpcgan, test_cpcgan, cpc_epochs, train_data, validation_data)
+    train_gan(cpcgan, gan_epochs, train_data, validation_data)
 
-        train_gan(cpcgan, test_cpcgan, gan_epochs, train_data, validation_data)
-    else:
-        if cpc_epochs != 0:
-            train_cpc_no_valid(cpcgan, cpc_epochs, train_data, validation_data)
-
-        train_gan_no_valid(cpcgan, gan_epochs, train_data, validation_data)
-
-def train_cpc_no_valid(cpcgan, epochs, train_data, validation_data):
+def train_cpc(cpcgan, epochs, train_data, validation_data):
     print('Start Training CPC.')
     i = 0
     for _ in range(epochs):
-        losses = []
-        accuracies = []
-        # Training
-        for (history, future), label in train_data:
-            cpc_run_batch(cpcgan, history, future, label,
-                    'Training', i, losses, accuracies)
-            i += 1
-            if i % 1e3 == 0:
-                break
-        print('\nTraining Epoch Is Done.')
-        # self.save()
-        # print('Model Saved')
-
-def train_cpc(cpcgan, test_cpcgan, epochs, train_data, validation_data):
-    print('Start Training CPC.')
-    i = 0
-    for _ in range(epochs):
+        cpcgan.log_tensorboard = True
         losses = []
         accuracies = []
         # Training
@@ -78,17 +54,16 @@ def train_cpc(cpcgan, test_cpcgan, epochs, train_data, validation_data):
                 break
         print('\nTraining Epoch Is Done. \nStart Validation...')
 
+        cpcgan.log_tensorboard = False
         losses = []
         accuracies = []
         # Validation
         for j, ((history, future), label) in enumerate(validation_data):
-            cpc_run_batch(test_cpcgan, history, future, label,
+            cpc_run_batch(cpcgan, history, future, label,
                     'Validation', j, losses, accuracies)
             if j >= 1e2:
                 break
         print('\nValidation Epoch Is Done.\n Start Saving...')
-        #  self.save()
-        # print('Model Saved')
 
 def cpc_run_batch(cpcgan, history, future, label, dataset, i, losses, accuracies):
     training = True if dataset == 'Training' else False
@@ -104,28 +79,11 @@ def cpc_run_batch(cpcgan, history, future, label, dataset, i, losses, accuracies
                                                                 np.mean(losses), 
                                                                 np.mean(accuracies)), end="")
 
-# no validation version
-def train_gan_no_valid(cpcgan, epochs, train_data, validation_data):
+def train_gan(cpcgan, epochs, train_data, validation_data):
     print('Start Training GAN. Good Luck :-)')
     i = 0
     for _ in range(epochs):
-        generator_losses = []
-        critic_losses = []
-        # Training
-        for (history, future), label in train_data:
-            gan_run_batch(cpcgan, history, future, label,
-                    'Training', i, generator_losses, critic_losses)
-            i += 1
-            if i % 1e3 == 0:
-                break
-        print('\nTraining Epoch Is Done...')
-        # self.save()
-        print('Model Saved')
-
-def train_gan(cpcgan, test_cpcgan, epochs, train_data, validation_data):
-    print('Start Training GAN. Good Luck :-)')
-    i = 0
-    for _ in range(epochs):
+        cpcgan.log_tensorboard = True
         generator_losses = []
         critic_losses = []
         # Training
@@ -137,11 +95,12 @@ def train_gan(cpcgan, test_cpcgan, epochs, train_data, validation_data):
                 break
         print('\nTraining Epoch Is Done. \nStart Validation...')
 
+        cpcgan.log_tensorboard = False
         generator_losses = []
         critic_losses = []
         # Validation
         for j, ((history, future), label) in enumerate(validation_data):
-            gan_run_batch(test_cpcgan, history, future, label,
+            gan_run_batch(cpcgan, history, future, label,
                     'Validation', j, generator_losses, critic_losses)
             if j >= 3e2:
                 break
@@ -164,4 +123,4 @@ def gan_run_batch(cpcgan, history, future, label, dataset, i, generator_losses, 
 
 if __name__ == "__main__":
 
-    train_cpcgan(5, 100000, has_validation=True)
+    train_cpcgan(1, 100000)

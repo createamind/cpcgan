@@ -25,7 +25,7 @@ class CPCGAN(Model):
                         build_graph=build_graph, 
                         log_tensorboard=log_tensorboard, save=self._save)
 
-        if self._log_tensorboard:
+        if self.log_tensorboard:
             # image log
             self.comparison, self.comparison_counter, self.comparison_log_op = self._setup_comparison_log()
         
@@ -41,7 +41,7 @@ class CPCGAN(Model):
 
     def optimize_cpc(self, history, future, training, label):
         feed_dict = self._construct_feed_dict(history, future, training, label)
-        if self._log_tensorboard:
+        if self.log_tensorboard:
             train_steps, logits, loss, _, summary = self.sess.run([self.train_steps, self.cpc.logits, 
                                                                     self.cpc.loss, self.cpc_opt_op, 
                                                                     self.graph_summary], feed_dict=feed_dict)
@@ -55,7 +55,7 @@ class CPCGAN(Model):
 
     def optimize_gan(self, history, future, training, label):
         feed_dict = self._construct_feed_dict(history, future, training, label)
-        if self._log_tensorboard:
+        if self.log_tensorboard:
             train_steps, generated_images, generator_loss, critic_loss, _, summary = self.sess.run([self.train_steps, self.generated_images,
                                                                                                     self.generator_loss, self.critic_loss, 
                                                                                                     self.gan_opt_op, self.graph_summary], 
@@ -99,7 +99,7 @@ class CPCGAN(Model):
                        self._args['code_size'], training=self._training,
                        sess=self.sess, reuse=self._reuse, 
                        build_graph=self._build_graph, 
-                       log_tensorboard=self._log_tensorboard,
+                       log_tensorboard=self.log_tensorboard,
                        scope_prefix=self.name)
         
         self.gans, self.generated_images = self._gans()
@@ -137,7 +137,7 @@ class CPCGAN(Model):
         for i in range(self.cpc.future_terms):
             # all other GANs reuse the params of the first
             reuse = self._reuse if i == 0 else True
-            log_tensorboard = self._log_tensorboard if i == 0 else False
+            log_tensorboard = self.log_tensorboard if i == 0 else False
             save = self._save if i == 0 else False
 
             gan = WGANGP('gan', gan_args,
@@ -176,7 +176,7 @@ class CPCGAN(Model):
             generator_loss = tf.reduce_mean(generator_losses, name='generator_loss')
             critic_loss = tf.reduce_mean(critic_losses, name='critic_loss')
 
-        if self._log_tensorboard or self._log_tensorboard:
+        if self.log_tensorboard or self.log_tensorboard:
             with tf.name_scope('loss'):
                 tf.summary.scalar('generator_loss', generator_loss)
                 tf.summary.scalar('critic_loss', critic_loss)

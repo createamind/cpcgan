@@ -111,7 +111,7 @@ class CPC(Model):
 
             loss = tf.losses.sigmoid_cross_entropy(self.label, logits)
 
-        if self._log_tensorboard:
+        if self.log_tensorboard:
             tf.summary.scalar('loss_', loss)
 
         return predictions, individual_logits, logits, loss
@@ -125,13 +125,13 @@ class CPC(Model):
 
                 MI = E_joint - E_prod
 
-                if self._log_tensorboard:
+                if self.log_tensorboard:
                     tf.summary.scalar('Local_MI_{}'.format(i), MI)
 
                 losses.append(-MI)
             loss = tf.reduce_mean(losses)
 
-            if self._log_tensorboard:
+            if self.log_tensorboard:
                 tf.summary.scalar('loss_', loss)
 
         return loss
