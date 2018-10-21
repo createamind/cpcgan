@@ -164,4 +164,4 @@ def gan_run_batch(cpcgan, history, future, label, dataset, i, generator_losses, 
 
 if __name__ == "__main__":
 
-    train_cpcgan(1, 100000, has_validation=True)
+    train_cpcgan(5, 100000, has_validation=True)
