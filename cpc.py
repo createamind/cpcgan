@@ -38,7 +38,7 @@ class CPC(Model):
 
     """ Implementation """
     def _build_graph(self):
-        self._setup_placeholder()
+        self.x_history, self.x_future, self.label, self.x = self._setup_placeholder()
 
         x_history_flat = tf.reshape(self.x_history, [-1, *self.image_shape], name='x_history_flat')
         x_future_flat = tf.reshape(self.x_future, [-1, *self.image_shape], name='x_future_flat')
@@ -55,15 +55,15 @@ class CPC(Model):
         else:
             self.loss = self._loss(self.context, z_future)
 
-        # self.train_steps, self.opt_op = self._optimize_op(self.loss)
-
     def _setup_placeholder(self):
         with tf.name_scope('placeholder'):
-            self.x_history = tf.placeholder(tf.float32, [None, self.hist_terms, *self.image_shape], name='x_history')
-            self.x_future = (tf.identity(self.x_future, name='x_future') if self.x_future is not None else
+            x_history = tf.placeholder(tf.float32, [None, self.hist_terms, *self.image_shape], name='x_history')
+            x_future = (tf.identity(self.x_future, name='x_future') if self.x_future is not None else
                             tf.placeholder(tf.float32, [None, self.future_terms, *self.image_shape], name='x_future'))
-            self.label = tf.placeholder(tf.int32, [None, 1], name='label')
-            self.x = tf.placeholder(tf.float32, [None, *self.image_shape], 'x')
+            label = tf.placeholder(tf.int32, [None, 1], name='label')
+            x = tf.placeholder(tf.float32, [None, *self.image_shape], 'x')
+
+            return x_history, x_future, label, x
 
     def _encode(self, x, reuse=None):
         with tf.variable_scope('encoder', reuse=self._reuse if reuse is None else reuse):
